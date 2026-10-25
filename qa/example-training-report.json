@@ -1,0 +1,40 @@
+{
+  "title": "MES 新人培训演练记录",
+  "simulated": true,
+  "exported_at": "2026-10-25T15:57:46.194Z",
+  "scenario": "100kg签收→75kg称量→70kg投料→30kg退料",
+  "completed": true,
+  "step": 4,
+  "received": 100,
+  "weighed": 75,
+  "fed": 70,
+  "returned": 30,
+  "mistakes": 0,
+  "events": [
+    {
+      "title": "现场签收",
+      "message": "签收成功：100kg 原料已进入现场，可开始称量。",
+      "time": "23:57:37"
+    },
+    {
+      "title": "备料称量",
+      "message": "称量完成：75kg 装桶并生成模拟标签，托盘还剩 25kg。",
+      "time": "23:57:39"
+    },
+    {
+      "title": "扫码投料",
+      "message": "投料成功：70kg 进入 T-01，桶内剩余 5kg。",
+      "time": "23:57:41"
+    },
+    {
+      "title": "余料退回",
+      "message": "退料完成：100kg＝投料 70kg＋退回 30kg，数量已闭合。",
+      "time": "23:57:44"
+    }
+  ],
+  "quantities": {
+    "stock": 0,
+    "bucket": 0,
+    "onsite": 0
+  }
+}
