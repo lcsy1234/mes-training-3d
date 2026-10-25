@@ -4,6 +4,7 @@ import { createScene, ENTITIES } from './scene.js';
 
 let state = initialState(), selected = 'pallet', scene, busy = false, formError = '', toastTimer;
 const $ = selector => document.querySelector(selector);
+$('.brand').href = import.meta.env.BASE_URL;
 const info = '<dl class="info-box"><div><dt>生产产程</dt><dd>MO-DEMO-001</dd></div><div><dt>物料名称</dt><dd>茶饮料原料（教学）</dd></div><div><dt>任务批次</dt><dd>TEA-20261025-A</dd></div></dl>';
 const batchSelect = (label = '到货标签批次') => `<label class="form-label" for="batch">${label}</label><select id="batch"><option value="${BATCH}">A 批次 · TEA-20261025-A</option><option value="TEA-20261025-B">B 批次 · 尝试不匹配标签</option></select>`;
 const tips = [
