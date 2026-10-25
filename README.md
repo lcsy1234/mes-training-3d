@@ -37,7 +37,7 @@ npm run preview
 ## 模型与代码
 
 - `model-library/`：四类推荐 GLB 模型与预览图，发布包内独立保存。
-- `public/models`：指向项目内模型目录的相对符号链接。
+- 构建直接使用 `model-library/` 作为静态素材目录；本地 `public/models` 相对链接保留用于兼容。
 - `src/training.js`：教学流程及数量校验。
 - `src/scene.js`：Three.js 场景、模型和动画。
 - `src/main.js`：交互界面。

@@ -89,7 +89,7 @@ export async function createScene(onSelect) {
   const gauge = box([.12, .01, .2], [3.6, .25, -1.49], '#178c75');
   const loader = new GLTFLoader(); let count = 0;
   async function model(name, target, dimension = 'y') {
-    const gltf = await loader.loadAsync(`${import.meta.env.BASE_URL}models/${MODEL[name]}/model.glb`);
+    const gltf = await loader.loadAsync(`${import.meta.env.BASE_URL}${MODEL[name]}/model.glb`);
     const object = gltf.scene;
     const bounds = new THREE.Box3().setFromObject(object);
     const size = bounds.getSize(new THREE.Vector3());
