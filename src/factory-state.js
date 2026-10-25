@@ -179,7 +179,9 @@ function perform(s,type,p,now) {
     needChapter(3);const t=s.tags[p.tagId],bucket=Number(p.bucket);
     requireCondition(t&&['overall','weigh','tea'].includes(t.kind),'请选择本课待投料标签。');
     requireCondition(t.bucket===bucket,'标签任务桶号与当前投料任务不一致。');
-    requireCondition(cartReady(s,bucket),'本桶物料尚未汇集齐全：需要整包料、称量料和茶叶教学物料。');
+    const missing=Object.values(s.tags).filter(item=>item.bucket===bucket&&['overall','weigh','tea'].includes(item.kind)&&!s.carts[bucket]?.includes(item.id)).map(item=>`${MATERIALS[item.material]}（${item.id}）`);
+    if(!s.teaPrepared)missing.push('茶叶教学物料（尚未准备标签）');
+    requireCondition(cartReady(s,bucket),`第 ${bucket} 桶尚未齐套，缺少：${missing.join('、')||'整包料、称量料或茶叶教学标签'}。`);
     const device={overall:'D-01',tea:'E-01',weigh:'M-01'}[t.kind];
     requireCondition(p.device===device,`设备不匹配：该物料应投到 ${device}。`);
     requireCondition(t.remainingGrams>0,'该标签已经投料，重复扫码不能再次扣料。');

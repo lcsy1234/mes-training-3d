@@ -116,6 +116,8 @@ test('collection rejects wrong buckets; incomplete cart and wrong device block f
   assert.equal(act(s, 'collect', { tagId: big.id, bucket: 2 }).ok, false);
   assert.equal(act(s, 'feed', { tagId: big.id, bucket: 1, device: 'D-01' }).ok, false);
   s = printed(ok(s, 'prepare-tea'));
+  const shortage = act(s, 'feed', { tagId: big.id, bucket: 1, device: 'D-01' });
+  assert.match(shortage.message, /赤藓糖醇.*小料.*茶叶/);
   for (const tag of Object.values(s.tags).filter(t => ['overall','weigh','tea'].includes(t.kind))) s = ok(s, 'collect', { tagId: tag.id, bucket: tag.bucket });
   assert.equal(act(s, 'feed', { tagId: big.id, bucket: 1, device: 'E-01' }).ok, false);
   const small = Object.values(s.tags).find(t => t.kind === 'weigh');

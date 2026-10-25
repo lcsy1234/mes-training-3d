@@ -1,0 +1,29 @@
+<!doctype html>
+<html lang="zh-CN">
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#f5f6f3"><title>MES 车间实训室 · 一批原料的旅程</title><link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'%3E%3Crect width='40' height='40' rx='10' fill='%230e7063'/%3E%3Cpath d='M9 28V13l11 7 11-7v15' fill='none' stroke='white' stroke-width='3'/%3E%3C/svg%3E"></head>
+<body>
+<header class="header"><a class="brand" href="/" aria-label="MES 车间实训室首页"><span class="brand-icon">M</span><span>MES <b>车间实训室</b></span></a><div class="header-center">LEARN BY DOING <span>／</span> 在操作中理解业务</div><div class="header-actions"><span class="demo-tag"><i></i> 模拟演练</span><button id="help" class="icon-button" aria-label="查看操作说明">?</button></div></header>
+<main>
+<section class="heading"><div><div class="eyebrow">新人成长路径 <span>／</span> 01 物料流转</div><h1>一批原料的旅程<span class="title-dot">.</span></h1><p>走进车间，亲手完成从签收到退料的每一步。</p></div><div class="heading-right"><span class="lesson-number">01 <small>/ 01</small></span><button id="reset" class="text-button">↻ 重新演练</button></div></section>
+<section class="workspace" aria-label="物料流转培训">
+<div class="scene-column">
+<nav id="steps" class="steps" aria-label="培训步骤"></nav>
+<div class="scene-wrap" id="scene-wrap">
+<div id="scene" role="img" aria-label="交互式三维车间，提供各区域名称按钮作为键盘操作入口"></div>
+<div class="scene-top"><span class="scene-caption"><i></i> 茶饮料生产车间 <span>LINE 01</span></span><span class="view-caption">3D 实训场景</span></div>
+<div id="object-labels" class="object-labels"></div>
+<div id="loading" class="loading"><span class="loading-ring"></span><strong>正在布置实训车间</strong><span id="load-progress">载入 3D 模型…</span></div>
+<div class="scene-bottom"><span>拖动旋转 · 滚轮缩放 · 点击实体选中</span><div><button id="view-reset" aria-label="恢复全景视角" title="恢复全景">⌖</button><button id="view-top" aria-label="切换俯视视角" title="俯视">▱</button></div></div>
+<div id="toast" role="status" aria-live="polite" hidden></div>
+</div>
+<div class="scene-footer"><div><span class="legend-dot"></span> 当前操作对象 <span class="legend-square"></span> 物料流转路径</div><span>所有数量与单据均为教学模拟</span></div>
+</div>
+<aside class="lesson-panel" aria-labelledby="lesson-title"><div class="panel-kicker">当前任务 <span id="step-count">01 / 04</span></div><div id="task-content"></div></aside>
+</section>
+<section class="insights" aria-label="实物任务账务三条线"><div class="insight"><span class="insight-icon">◇</span><div><h2>实物线 <small>物料在哪里</small></h2><p id="physical-line"></p></div></div><div class="insight"><span class="insight-icon">☷</span><div><h2>任务线 <small>做到了哪一步</small></h2><p id="task-line"></p></div></div><div class="insight"><span class="insight-icon">≋</span><div><h2>数量账 <small>每一公斤都有去向</small></h2><p id="account-line"></p></div></div></section>
+<section class="record-section"><div class="record-heading"><h2>操作记录 <span id="record-count">0</span></h2><button id="export" class="text-button">↓ 导出演练记录</button></div><div id="records" aria-live="polite"></div></section>
+<footer class="footer"><span>MES LEARNING LAB</span><p>先看实物，再看任务，最后核对数量。</p><span>本地教学版 · V0.1</span></footer>
+</main>
+<dialog id="help-dialog"><button id="close-help" class="dialog-close" aria-label="关闭说明">×</button><div class="eyebrow">开始之前</div><h2>在三维车间里，练习真实的业务顺序。</h2><p>点击场景中的托盘、电子秤、投料罐或退料区，也可以使用每个区域的名称按钮。右侧会给出当前步骤的操作要求。</p><ol><li>签收：核对 A 批次，确认到货 100kg。</li><li>称量：输入 75kg 净重，生成模拟物料标签。</li><li>投料：核对 A 批次与 T-01，投料 70kg。</li><li>退料：将未称量 25kg 与桶内余料 5kg 一并退回。</li></ol><p>可以尝试错误批次、错误重量或错误设备，观察系统为什么拦截。这里的固定数量是教学规则；真实现场的容差、审批和退料规则以业务系统为准。</p><button id="start-learning" class="primary">开始动手练习 →</button></dialog>
+<script type="module" src="/src/main.js"></script>
+</body></html>
