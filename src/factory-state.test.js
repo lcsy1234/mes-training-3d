@@ -6,7 +6,9 @@ function ok(s, type, payload = {}, now = 0) {
   assert.equal(r.ok, true, `${type}: ${r.message}`); return r.state;
 }
 function received(mode = 'bucket') {
-  return ok(ok(createFactoryState(mode), 'receive', { campaign:'DEMO-P01', batch:'DEMO-A' }), 'advance');
+  let s=createFactoryState(mode);
+  for(const p of Object.values(s.pallets).filter(p=>p.warehouse==='wms'))s=ok(s,'issue',{palletId:p.id,grams:p.initialGrams,campaign:'DEMO-P01',batch:'DEMO-A'});
+  return ok(ok(s,'receive',{campaign:'DEMO-P01',batch:'DEMO-A'}),'advance');
 }
 function printed(s) {
   for (const job of s.printJobs.filter(j=>j.status!=='printed')) s=ok(s,'print',{jobId:job.id});

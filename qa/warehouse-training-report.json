@@ -1,0 +1,1536 @@
+{
+  "title": "MES 工厂前处理实训记录",
+  "version": 4,
+  "simulated": true,
+  "exportedAt": "2026-10-26T06:30:20.003Z",
+  "ledger": {
+    "receivedGrams": 79500,
+    "remainingGrams": 0,
+    "fedGrams": 79500,
+    "differenceGrams": 0
+  },
+  "warehouseLedger": {
+    "initialGrams": 210000,
+    "warehouseGrams": 130500,
+    "inTransitGrams": 0,
+    "signedGrams": 79500,
+    "differenceGrams": 0
+  },
+  "mode": "bucket",
+  "chapter": 3,
+  "finished": true,
+  "campaign": "DEMO-P01",
+  "pallets": {
+    "WMS-P01": {
+      "id": "WMS-P01",
+      "sourceId": "RAW-20",
+      "warehouse": "wms",
+      "material": "BULK",
+      "batch": "DEMO-A",
+      "initialGrams": 20000,
+      "warehouseGrams": 20000,
+      "signedGrams": 0,
+      "preparedGrams": 0
+    },
+    "WMS-P02": {
+      "id": "WMS-P02",
+      "sourceId": "RAW-77",
+      "warehouse": "wms",
+      "material": "BULK",
+      "batch": "DEMO-A",
+      "initialGrams": 77000,
+      "warehouseGrams": 2000,
+      "signedGrams": 75000,
+      "preparedGrams": 75000
+    },
+    "WMS-P03": {
+      "id": "WMS-P03",
+      "sourceId": "SMALL-RAW",
+      "warehouse": "wms",
+      "material": "SMALL",
+      "batch": "DEMO-A",
+      "initialGrams": 5000,
+      "warehouseGrams": 3500,
+      "signedGrams": 1500,
+      "preparedGrams": 1500
+    },
+    "WMS-P04": {
+      "id": "WMS-P04",
+      "sourceId": "TEA-RAW",
+      "warehouse": "wms",
+      "material": "TEA",
+      "batch": "DEMO-A",
+      "initialGrams": 3000,
+      "warehouseGrams": 0,
+      "signedGrams": 3000,
+      "preparedGrams": 3000
+    },
+    "TEMP-P01": {
+      "id": "TEMP-P01",
+      "sourceId": "V-RAW-20",
+      "warehouse": "virtual",
+      "material": "BULK",
+      "batch": "DEMO-A",
+      "initialGrams": 20000,
+      "warehouseGrams": 20000,
+      "signedGrams": 0,
+      "preparedGrams": 0
+    },
+    "TEMP-P02": {
+      "id": "TEMP-P02",
+      "sourceId": "V-RAW-77",
+      "warehouse": "virtual",
+      "material": "BULK",
+      "batch": "DEMO-A",
+      "initialGrams": 77000,
+      "warehouseGrams": 77000,
+      "signedGrams": 0,
+      "preparedGrams": 0
+    },
+    "TEMP-P03": {
+      "id": "TEMP-P03",
+      "sourceId": "V-SMALL-RAW",
+      "warehouse": "virtual",
+      "material": "SMALL",
+      "batch": "DEMO-A",
+      "initialGrams": 5000,
+      "warehouseGrams": 5000,
+      "signedGrams": 0,
+      "preparedGrams": 0
+    },
+    "TEMP-P04": {
+      "id": "TEMP-P04",
+      "sourceId": "V-TEA-RAW",
+      "warehouse": "virtual",
+      "material": "TEA",
+      "batch": "DEMO-A",
+      "initialGrams": 3000,
+      "warehouseGrams": 3000,
+      "signedGrams": 0,
+      "preparedGrams": 0
+    }
+  },
+  "tags": {
+    "RAW-20": {
+      "id": "RAW-20",
+      "kind": "raw",
+      "material": "BULK",
+      "batch": "DEMO-A",
+      "grams": 0,
+      "remainingGrams": 0,
+      "initialGrams": 20000,
+      "received": false,
+      "printed": true,
+      "attached": true,
+      "bucket": 0,
+      "parentIds": [],
+      "allocations": [],
+      "location": "warehouse",
+      "itemGrams": 25000,
+      "palletId": "WMS-P01",
+      "receiptIds": []
+    },
+    "RAW-77": {
+      "id": "RAW-77",
+      "kind": "raw",
+      "material": "BULK",
+      "batch": "DEMO-A",
+      "grams": 75000,
+      "remainingGrams": 0,
+      "initialGrams": 77000,
+      "received": true,
+      "printed": true,
+      "attached": true,
+      "bucket": 0,
+      "parentIds": [],
+      "allocations": [],
+      "location": "receipt",
+      "itemGrams": 25000,
+      "palletId": "WMS-P02",
+      "receiptIds": [
+        "RECEIPT-002",
+        "RECEIPT-017"
+      ]
+    },
+    "SMALL-RAW": {
+      "id": "SMALL-RAW",
+      "kind": "raw",
+      "material": "SMALL",
+      "batch": "DEMO-A",
+      "grams": 1500,
+      "remainingGrams": 0,
+      "initialGrams": 5000,
+      "received": true,
+      "printed": true,
+      "attached": true,
+      "bucket": 0,
+      "parentIds": [],
+      "allocations": [],
+      "location": "receipt",
+      "itemGrams": 25000,
+      "palletId": "WMS-P03",
+      "receiptIds": [
+        "RECEIPT-004"
+      ]
+    },
+    "TEA-RAW": {
+      "id": "TEA-RAW",
+      "kind": "raw",
+      "material": "TEA",
+      "batch": "DEMO-A",
+      "grams": 3000,
+      "remainingGrams": 0,
+      "initialGrams": 3000,
+      "received": true,
+      "printed": true,
+      "attached": true,
+      "bucket": 0,
+      "parentIds": [],
+      "allocations": [],
+      "location": "receipt",
+      "itemGrams": 25000,
+      "palletId": "WMS-P04",
+      "receiptIds": [
+        "RECEIPT-006"
+      ]
+    },
+    "V-RAW-20": {
+      "id": "V-RAW-20",
+      "kind": "raw",
+      "material": "BULK",
+      "batch": "DEMO-A",
+      "grams": 0,
+      "remainingGrams": 0,
+      "initialGrams": 20000,
+      "received": false,
+      "printed": true,
+      "attached": true,
+      "bucket": 0,
+      "parentIds": [],
+      "allocations": [],
+      "location": "warehouse",
+      "itemGrams": 25000,
+      "palletId": "TEMP-P01",
+      "receiptIds": []
+    },
+    "V-RAW-77": {
+      "id": "V-RAW-77",
+      "kind": "raw",
+      "material": "BULK",
+      "batch": "DEMO-A",
+      "grams": 0,
+      "remainingGrams": 0,
+      "initialGrams": 77000,
+      "received": false,
+      "printed": true,
+      "attached": true,
+      "bucket": 0,
+      "parentIds": [],
+      "allocations": [],
+      "location": "warehouse",
+      "itemGrams": 25000,
+      "palletId": "TEMP-P02",
+      "receiptIds": []
+    },
+    "V-SMALL-RAW": {
+      "id": "V-SMALL-RAW",
+      "kind": "raw",
+      "material": "SMALL",
+      "batch": "DEMO-A",
+      "grams": 0,
+      "remainingGrams": 0,
+      "initialGrams": 5000,
+      "received": false,
+      "printed": true,
+      "attached": true,
+      "bucket": 0,
+      "parentIds": [],
+      "allocations": [],
+      "location": "warehouse",
+      "itemGrams": 25000,
+      "palletId": "TEMP-P03",
+      "receiptIds": []
+    },
+    "V-TEA-RAW": {
+      "id": "V-TEA-RAW",
+      "kind": "raw",
+      "material": "TEA",
+      "batch": "DEMO-A",
+      "grams": 0,
+      "remainingGrams": 0,
+      "initialGrams": 3000,
+      "received": false,
+      "printed": true,
+      "attached": true,
+      "bucket": 0,
+      "parentIds": [],
+      "allocations": [],
+      "location": "warehouse",
+      "itemGrams": 25000,
+      "palletId": "TEMP-P04",
+      "receiptIds": []
+    },
+    "WRONG": {
+      "id": "WRONG",
+      "kind": "raw",
+      "material": "WRONG",
+      "batch": "DEMO-B",
+      "grams": 1000,
+      "remainingGrams": 1000,
+      "received": false,
+      "printed": true,
+      "attached": true,
+      "bucket": 0,
+      "parentIds": [],
+      "allocations": [],
+      "location": "warehouse",
+      "itemGrams": 25000
+    },
+    "UNSIGNED": {
+      "id": "UNSIGNED",
+      "kind": "raw",
+      "material": "BULK",
+      "batch": "DEMO-B",
+      "grams": 50000,
+      "remainingGrams": 50000,
+      "received": false,
+      "printed": true,
+      "attached": true,
+      "bucket": 0,
+      "parentIds": [],
+      "allocations": [],
+      "location": "warehouse",
+      "itemGrams": 25000
+    },
+    "UNPACK-007": {
+      "id": "UNPACK-007",
+      "kind": "unpack",
+      "grams": 50000,
+      "remainingGrams": 0,
+      "material": "BULK",
+      "batch": "DEMO-A",
+      "bucket": 0,
+      "parentIds": [
+        "RAW-77"
+      ],
+      "allocations": [
+        {
+          "id": "RAW-77",
+          "grams": 50000
+        }
+      ],
+      "location": "unpack",
+      "palletId": "WMS-P02",
+      "receiptIds": [
+        "RECEIPT-002"
+      ],
+      "itemGrams": 25000,
+      "received": true,
+      "printed": true,
+      "attached": true,
+      "jobId": "PRINT-008"
+    },
+    "UNPACK-009": {
+      "id": "UNPACK-009",
+      "kind": "unpack",
+      "grams": 1500,
+      "remainingGrams": 0,
+      "material": "SMALL",
+      "batch": "DEMO-A",
+      "bucket": 0,
+      "parentIds": [
+        "SMALL-RAW"
+      ],
+      "allocations": [
+        {
+          "id": "SMALL-RAW",
+          "grams": 1500
+        }
+      ],
+      "location": "unpack",
+      "palletId": "WMS-P03",
+      "receiptIds": [
+        "RECEIPT-004"
+      ],
+      "itemGrams": 25000,
+      "received": true,
+      "printed": true,
+      "attached": true,
+      "jobId": "PRINT-010"
+    },
+    "UNPACK-011": {
+      "id": "UNPACK-011",
+      "kind": "unpack",
+      "grams": 3000,
+      "remainingGrams": 0,
+      "material": "TEA",
+      "batch": "DEMO-A",
+      "bucket": 0,
+      "parentIds": [
+        "TEA-RAW"
+      ],
+      "allocations": [
+        {
+          "id": "TEA-RAW",
+          "grams": 3000
+        }
+      ],
+      "location": "unpack",
+      "palletId": "WMS-P04",
+      "receiptIds": [
+        "RECEIPT-006"
+      ],
+      "itemGrams": 25000,
+      "received": true,
+      "printed": true,
+      "attached": true,
+      "jobId": "PRINT-012"
+    },
+    "OVERALL-013": {
+      "id": "OVERALL-013",
+      "kind": "overall",
+      "grams": 25000,
+      "remainingGrams": 0,
+      "material": "BULK",
+      "batch": "DEMO-A",
+      "bucket": 1,
+      "parentIds": [
+        "UNPACK-007"
+      ],
+      "allocations": [
+        {
+          "id": "UNPACK-007",
+          "grams": 25000
+        }
+      ],
+      "location": "D-01",
+      "palletId": "WMS-P02",
+      "receiptIds": [
+        "RECEIPT-002"
+      ],
+      "itemGrams": 25000,
+      "received": true,
+      "printed": true,
+      "attached": true,
+      "jobId": "PRINT-015"
+    },
+    "OVERALL-014": {
+      "id": "OVERALL-014",
+      "kind": "overall",
+      "grams": 25000,
+      "remainingGrams": 0,
+      "material": "BULK",
+      "batch": "DEMO-A",
+      "bucket": 2,
+      "parentIds": [
+        "UNPACK-007"
+      ],
+      "allocations": [
+        {
+          "id": "UNPACK-007",
+          "grams": 25000
+        }
+      ],
+      "location": "D-01",
+      "palletId": "WMS-P02",
+      "receiptIds": [
+        "RECEIPT-002"
+      ],
+      "itemGrams": 25000,
+      "received": true,
+      "printed": true,
+      "attached": true,
+      "jobId": "PRINT-015"
+    },
+    "UNPACK-018": {
+      "id": "UNPACK-018",
+      "kind": "unpack",
+      "grams": 25000,
+      "remainingGrams": 0,
+      "material": "BULK",
+      "batch": "DEMO-A",
+      "bucket": 0,
+      "parentIds": [
+        "RAW-77"
+      ],
+      "allocations": [
+        {
+          "id": "RAW-77",
+          "grams": 25000
+        }
+      ],
+      "location": "unpack",
+      "palletId": "WMS-P02",
+      "receiptIds": [
+        "RECEIPT-002",
+        "RECEIPT-017"
+      ],
+      "itemGrams": 25000,
+      "received": true,
+      "printed": true,
+      "attached": true,
+      "jobId": "PRINT-019"
+    },
+    "OVERALL-020": {
+      "id": "OVERALL-020",
+      "kind": "overall",
+      "grams": 25000,
+      "remainingGrams": 0,
+      "material": "BULK",
+      "batch": "DEMO-A",
+      "bucket": 3,
+      "parentIds": [
+        "UNPACK-018"
+      ],
+      "allocations": [
+        {
+          "id": "UNPACK-018",
+          "grams": 25000
+        }
+      ],
+      "location": "D-01",
+      "palletId": "WMS-P02",
+      "receiptIds": [
+        "RECEIPT-002",
+        "RECEIPT-017"
+      ],
+      "itemGrams": 25000,
+      "received": true,
+      "printed": true,
+      "attached": true,
+      "jobId": "PRINT-021"
+    },
+    "WEIGH-022": {
+      "id": "WEIGH-022",
+      "kind": "weigh",
+      "grams": 500,
+      "remainingGrams": 0,
+      "material": "SMALL",
+      "batch": "DEMO-A",
+      "bucket": 1,
+      "parentIds": [
+        "UNPACK-009"
+      ],
+      "allocations": [
+        {
+          "id": "UNPACK-009",
+          "grams": 500
+        }
+      ],
+      "location": "M-01",
+      "palletId": "WMS-P03",
+      "receiptIds": [
+        "RECEIPT-004"
+      ],
+      "itemGrams": 25000,
+      "received": true,
+      "printed": true,
+      "attached": true,
+      "jobId": "PRINT-023"
+    },
+    "WEIGH-024": {
+      "id": "WEIGH-024",
+      "kind": "weigh",
+      "grams": 500,
+      "remainingGrams": 0,
+      "material": "SMALL",
+      "batch": "DEMO-A",
+      "bucket": 2,
+      "parentIds": [
+        "UNPACK-009"
+      ],
+      "allocations": [
+        {
+          "id": "UNPACK-009",
+          "grams": 500
+        }
+      ],
+      "location": "M-01",
+      "palletId": "WMS-P03",
+      "receiptIds": [
+        "RECEIPT-004"
+      ],
+      "itemGrams": 25000,
+      "received": true,
+      "printed": true,
+      "attached": true,
+      "jobId": "PRINT-025"
+    },
+    "WEIGH-026": {
+      "id": "WEIGH-026",
+      "kind": "weigh",
+      "grams": 500,
+      "remainingGrams": 0,
+      "material": "SMALL",
+      "batch": "DEMO-A",
+      "bucket": 3,
+      "parentIds": [
+        "UNPACK-009"
+      ],
+      "allocations": [
+        {
+          "id": "UNPACK-009",
+          "grams": 500
+        }
+      ],
+      "location": "M-01",
+      "palletId": "WMS-P03",
+      "receiptIds": [
+        "RECEIPT-004"
+      ],
+      "itemGrams": 25000,
+      "received": true,
+      "printed": true,
+      "attached": true,
+      "jobId": "PRINT-027"
+    },
+    "TEA-028": {
+      "id": "TEA-028",
+      "kind": "tea",
+      "grams": 1000,
+      "remainingGrams": 0,
+      "material": "TEA",
+      "batch": "DEMO-A",
+      "bucket": 1,
+      "parentIds": [
+        "UNPACK-011"
+      ],
+      "allocations": [
+        {
+          "id": "UNPACK-011",
+          "grams": 1000
+        }
+      ],
+      "location": "E-01",
+      "palletId": "WMS-P04",
+      "receiptIds": [
+        "RECEIPT-006"
+      ],
+      "itemGrams": 25000,
+      "received": true,
+      "printed": true,
+      "attached": true,
+      "jobId": "PRINT-031"
+    },
+    "TEA-029": {
+      "id": "TEA-029",
+      "kind": "tea",
+      "grams": 1000,
+      "remainingGrams": 0,
+      "material": "TEA",
+      "batch": "DEMO-A",
+      "bucket": 2,
+      "parentIds": [
+        "UNPACK-011"
+      ],
+      "allocations": [
+        {
+          "id": "UNPACK-011",
+          "grams": 1000
+        }
+      ],
+      "location": "E-01",
+      "palletId": "WMS-P04",
+      "receiptIds": [
+        "RECEIPT-006"
+      ],
+      "itemGrams": 25000,
+      "received": true,
+      "printed": true,
+      "attached": true,
+      "jobId": "PRINT-031"
+    },
+    "TEA-030": {
+      "id": "TEA-030",
+      "kind": "tea",
+      "grams": 1000,
+      "remainingGrams": 0,
+      "material": "TEA",
+      "batch": "DEMO-A",
+      "bucket": 3,
+      "parentIds": [
+        "UNPACK-011"
+      ],
+      "allocations": [
+        {
+          "id": "UNPACK-011",
+          "grams": 1000
+        }
+      ],
+      "location": "E-01",
+      "palletId": "WMS-P04",
+      "receiptIds": [
+        "RECEIPT-006"
+      ],
+      "itemGrams": 25000,
+      "received": true,
+      "printed": true,
+      "attached": true,
+      "jobId": "PRINT-031"
+    }
+  },
+  "roots": [
+    "RAW-20",
+    "RAW-77",
+    "SMALL-RAW",
+    "TEA-RAW",
+    "V-RAW-20",
+    "V-RAW-77",
+    "V-SMALL-RAW",
+    "V-TEA-RAW"
+  ],
+  "issueRecords": [
+    {
+      "id": "ISSUE-001",
+      "palletId": "WMS-P02",
+      "sourceId": "RAW-77",
+      "warehouse": "wms",
+      "material": "BULK",
+      "batch": "DEMO-A",
+      "campaign": "DEMO-P01",
+      "grams": 50000,
+      "status": "signed",
+      "requestKey": null,
+      "receiptId": "RECEIPT-002"
+    },
+    {
+      "id": "ISSUE-003",
+      "palletId": "WMS-P03",
+      "sourceId": "SMALL-RAW",
+      "warehouse": "wms",
+      "material": "SMALL",
+      "batch": "DEMO-A",
+      "campaign": "DEMO-P01",
+      "grams": 1500,
+      "status": "signed",
+      "requestKey": null,
+      "receiptId": "RECEIPT-004"
+    },
+    {
+      "id": "ISSUE-005",
+      "palletId": "WMS-P04",
+      "sourceId": "TEA-RAW",
+      "warehouse": "wms",
+      "material": "TEA",
+      "batch": "DEMO-A",
+      "campaign": "DEMO-P01",
+      "grams": 3000,
+      "status": "signed",
+      "requestKey": null,
+      "receiptId": "RECEIPT-006"
+    },
+    {
+      "id": "ISSUE-016",
+      "palletId": "WMS-P02",
+      "sourceId": "RAW-77",
+      "warehouse": "wms",
+      "material": "BULK",
+      "batch": "DEMO-A",
+      "campaign": "DEMO-P01",
+      "grams": 25000,
+      "status": "signed",
+      "requestKey": null,
+      "receiptId": "RECEIPT-017"
+    }
+  ],
+  "receiptOrders": [
+    {
+      "id": "RECEIPT-002",
+      "issueId": "ISSUE-001",
+      "palletId": "WMS-P02",
+      "sourceId": "RAW-77",
+      "campaign": "DEMO-P01",
+      "batch": "DEMO-A",
+      "grams": 50000,
+      "status": "signed"
+    },
+    {
+      "id": "RECEIPT-004",
+      "issueId": "ISSUE-003",
+      "palletId": "WMS-P03",
+      "sourceId": "SMALL-RAW",
+      "campaign": "DEMO-P01",
+      "batch": "DEMO-A",
+      "grams": 1500,
+      "status": "signed"
+    },
+    {
+      "id": "RECEIPT-006",
+      "issueId": "ISSUE-005",
+      "palletId": "WMS-P04",
+      "sourceId": "TEA-RAW",
+      "campaign": "DEMO-P01",
+      "batch": "DEMO-A",
+      "grams": 3000,
+      "status": "signed"
+    },
+    {
+      "id": "RECEIPT-017",
+      "issueId": "ISSUE-016",
+      "palletId": "WMS-P02",
+      "sourceId": "RAW-77",
+      "campaign": "DEMO-P01",
+      "batch": "DEMO-A",
+      "grams": 25000,
+      "status": "signed"
+    }
+  ],
+  "selectedSources": [
+    "UNPACK-007",
+    "UNPACK-018"
+  ],
+  "packageTasks": [
+    {
+      "id": "P-1",
+      "bucket": 1,
+      "grams": 25000,
+      "done": true,
+      "tagIds": [
+        "OVERALL-013"
+      ]
+    },
+    {
+      "id": "P-2",
+      "bucket": 2,
+      "grams": 25000,
+      "done": true,
+      "tagIds": [
+        "OVERALL-014"
+      ]
+    },
+    {
+      "id": "P-3",
+      "bucket": 3,
+      "grams": 25000,
+      "done": true,
+      "tagIds": [
+        "OVERALL-020"
+      ]
+    }
+  ],
+  "smallTasks": [
+    {
+      "id": "W-1",
+      "bucket": 1,
+      "done": true,
+      "tagIds": [
+        "WEIGH-022"
+      ]
+    },
+    {
+      "id": "W-2",
+      "bucket": 2,
+      "done": true,
+      "tagIds": [
+        "WEIGH-024"
+      ]
+    },
+    {
+      "id": "W-3",
+      "bucket": 3,
+      "done": true,
+      "tagIds": [
+        "WEIGH-026"
+      ]
+    }
+  ],
+  "labelType": "bucket",
+  "printJobs": [
+    {
+      "id": "PRINT-008",
+      "title": "赤藓糖醇脱包标签",
+      "tagIds": [
+        "UNPACK-007"
+      ],
+      "status": "printed",
+      "attempts": 1
+    },
+    {
+      "id": "PRINT-010",
+      "title": "小料 A（教学）脱包标签",
+      "tagIds": [
+        "UNPACK-009"
+      ],
+      "status": "printed",
+      "attempts": 1
+    },
+    {
+      "id": "PRINT-012",
+      "title": "茶叶（教学）脱包标签",
+      "tagIds": [
+        "UNPACK-011"
+      ],
+      "status": "printed",
+      "attempts": 1
+    },
+    {
+      "id": "PRINT-015",
+      "title": "整包备料标签",
+      "tagIds": [
+        "OVERALL-013",
+        "OVERALL-014"
+      ],
+      "status": "printed",
+      "attempts": 1
+    },
+    {
+      "id": "PRINT-019",
+      "title": "赤藓糖醇脱包标签",
+      "tagIds": [
+        "UNPACK-018"
+      ],
+      "status": "printed",
+      "attempts": 1
+    },
+    {
+      "id": "PRINT-021",
+      "title": "整包备料标签",
+      "tagIds": [
+        "OVERALL-020"
+      ],
+      "status": "printed",
+      "attempts": 2
+    },
+    {
+      "id": "PRINT-023",
+      "title": "第 1 桶称量标签",
+      "tagIds": [
+        "WEIGH-022"
+      ],
+      "status": "printed",
+      "attempts": 1
+    },
+    {
+      "id": "PRINT-025",
+      "title": "第 2 桶称量标签",
+      "tagIds": [
+        "WEIGH-024"
+      ],
+      "status": "printed",
+      "attempts": 1
+    },
+    {
+      "id": "PRINT-027",
+      "title": "第 3 桶称量标签",
+      "tagIds": [
+        "WEIGH-026"
+      ],
+      "status": "printed",
+      "attempts": 1
+    },
+    {
+      "id": "PRINT-031",
+      "title": "茶叶教学备料标签",
+      "tagIds": [
+        "TEA-028",
+        "TEA-029",
+        "TEA-030"
+      ],
+      "status": "printed",
+      "attempts": 1
+    }
+  ],
+  "unpackedSources": {
+    "RAW-77": "UNPACK-018",
+    "SMALL-RAW": "UNPACK-009",
+    "TEA-RAW": "UNPACK-011"
+  },
+  "unpackId": "UNPACK-009",
+  "scale": {
+    "tareSet": false,
+    "tareGrams": 0,
+    "grossGrams": 100,
+    "changedAt": 1792996178512
+  },
+  "carts": {
+    "1": [
+      "OVERALL-013",
+      "WEIGH-022",
+      "TEA-028"
+    ],
+    "2": [
+      "OVERALL-014",
+      "WEIGH-024",
+      "TEA-029"
+    ],
+    "3": [
+      "OVERALL-020",
+      "WEIGH-026",
+      "TEA-030"
+    ]
+  },
+  "feeds": [
+    {
+      "tagId": "OVERALL-013",
+      "bucket": 1,
+      "device": "D-01",
+      "grams": 25000,
+      "kind": "overall"
+    },
+    {
+      "tagId": "OVERALL-014",
+      "bucket": 2,
+      "device": "D-01",
+      "grams": 25000,
+      "kind": "overall"
+    },
+    {
+      "tagId": "OVERALL-020",
+      "bucket": 3,
+      "device": "D-01",
+      "grams": 25000,
+      "kind": "overall"
+    },
+    {
+      "tagId": "TEA-028",
+      "bucket": 1,
+      "device": "E-01",
+      "grams": 1000,
+      "kind": "tea"
+    },
+    {
+      "tagId": "TEA-029",
+      "bucket": 2,
+      "device": "E-01",
+      "grams": 1000,
+      "kind": "tea"
+    },
+    {
+      "tagId": "TEA-030",
+      "bucket": 3,
+      "device": "E-01",
+      "grams": 1000,
+      "kind": "tea"
+    },
+    {
+      "tagId": "WEIGH-022",
+      "bucket": 1,
+      "device": "M-01",
+      "grams": 500,
+      "kind": "weigh"
+    },
+    {
+      "tagId": "WEIGH-024",
+      "bucket": 2,
+      "device": "M-01",
+      "grams": 500,
+      "kind": "weigh"
+    },
+    {
+      "tagId": "WEIGH-026",
+      "bucket": 3,
+      "device": "M-01",
+      "grams": 500,
+      "kind": "weigh"
+    }
+  ],
+  "sequence": 31,
+  "mistakes": 1,
+  "events": [
+    {
+      "id": 1,
+      "type": "scan-pallet",
+      "message": "已读取托盘码 WMS-P02，扫码不增加库存或签收额度。",
+      "time": "2026-10-26T06:27:34.678Z",
+      "success": true
+    },
+    {
+      "id": 2,
+      "type": "issue",
+      "message": "模拟WMS已发货，生成领料单 ISSUE-001 和签收单 RECEIPT-002；进入签收区后自动签收，当前尚不可备料。",
+      "time": "2026-10-26T06:28:14.950Z",
+      "success": true
+    },
+    {
+      "id": 3,
+      "type": "issue",
+      "message": "模拟WMS已发货，生成领料单 ISSUE-003 和签收单 RECEIPT-004；进入签收区后自动签收，当前尚不可备料。",
+      "time": "2026-10-26T06:28:27.100Z",
+      "success": true
+    },
+    {
+      "id": 4,
+      "type": "issue",
+      "message": "模拟WMS已发货，生成领料单 ISSUE-005 和签收单 RECEIPT-006；进入签收区后自动签收，当前尚不可备料。",
+      "time": "2026-10-26T06:28:27.141Z",
+      "success": true
+    },
+    {
+      "id": 5,
+      "type": "receive",
+      "message": "物料签收已自动处理 3 张签收单；每张仅入账一次，使用量不能超过已签收量。",
+      "time": "2026-10-26T06:28:27.162Z",
+      "success": true
+    },
+    {
+      "id": 6,
+      "type": "advance",
+      "message": "进入原料脱包，前面的记录已保留。",
+      "time": "2026-10-26T06:28:27.199Z",
+      "success": true
+    },
+    {
+      "id": 7,
+      "type": "unpack",
+      "message": "已去除 RAW-77 外包装，生成 UNPACK-007；来源与批次继承，总量不变。请打印贴标，再进入备料。",
+      "time": "2026-10-26T06:28:56.329Z",
+      "success": true
+    },
+    {
+      "id": 8,
+      "type": "print",
+      "message": "已打印原标签；来源余额与任务份数保持不变。",
+      "time": "2026-10-26T06:28:56.514Z",
+      "success": true
+    },
+    {
+      "id": 9,
+      "type": "attach",
+      "message": "标签 UNPACK-007 已与对应实物核对贴附。",
+      "time": "2026-10-26T06:28:56.562Z",
+      "success": true
+    },
+    {
+      "id": 10,
+      "type": "unpack",
+      "message": "已去除 SMALL-RAW 外包装，生成 UNPACK-009；来源与批次继承，总量不变。请打印贴标，再进入备料。",
+      "time": "2026-10-26T06:28:56.585Z",
+      "success": true
+    },
+    {
+      "id": 11,
+      "type": "print",
+      "message": "已打印原标签；来源余额与任务份数保持不变。",
+      "time": "2026-10-26T06:28:56.606Z",
+      "success": true
+    },
+    {
+      "id": 12,
+      "type": "attach",
+      "message": "标签 UNPACK-009 已与对应实物核对贴附。",
+      "time": "2026-10-26T06:28:56.626Z",
+      "success": true
+    },
+    {
+      "id": 13,
+      "type": "unpack",
+      "message": "已去除 TEA-RAW 外包装，生成 UNPACK-011；来源与批次继承，总量不变。请打印贴标，再进入备料。",
+      "time": "2026-10-26T06:28:56.648Z",
+      "success": true
+    },
+    {
+      "id": 14,
+      "type": "print",
+      "message": "已打印原标签；来源余额与任务份数保持不变。",
+      "time": "2026-10-26T06:28:56.677Z",
+      "success": true
+    },
+    {
+      "id": 15,
+      "type": "attach",
+      "message": "标签 UNPACK-011 已与对应实物核对贴附。",
+      "time": "2026-10-26T06:28:56.698Z",
+      "success": true
+    },
+    {
+      "id": 16,
+      "type": "advance",
+      "message": "进入原料备料，前面的记录已保留。",
+      "time": "2026-10-26T06:28:56.715Z",
+      "success": true
+    },
+    {
+      "id": 17,
+      "type": "scan",
+      "message": "已选择 UNPACK-007，可用 50kg。",
+      "time": "2026-10-26T06:28:56.770Z",
+      "success": true
+    },
+    {
+      "id": 18,
+      "type": "package",
+      "message": "来源可用 50kg，不足本次 75kg；不会扣料或完成任务。",
+      "time": "2026-10-26T06:28:56.866Z",
+      "success": false
+    },
+    {
+      "id": 19,
+      "type": "package",
+      "message": "备料业务成功：完成 2 份任务，生成 2 张标签；请另行打印、贴标。",
+      "time": "2026-10-26T06:28:56.906Z",
+      "success": true
+    },
+    {
+      "id": 20,
+      "type": "print",
+      "message": "已打印原标签；来源余额与任务份数保持不变。",
+      "time": "2026-10-26T06:28:56.929Z",
+      "success": true
+    },
+    {
+      "id": 21,
+      "type": "attach",
+      "message": "标签 OVERALL-013 已与对应实物核对贴附。",
+      "time": "2026-10-26T06:28:56.977Z",
+      "success": true
+    },
+    {
+      "id": 22,
+      "type": "attach",
+      "message": "标签 OVERALL-014 已与对应实物核对贴附。",
+      "time": "2026-10-26T06:28:57.001Z",
+      "success": true
+    },
+    {
+      "id": 23,
+      "type": "issue",
+      "message": "模拟WMS已发货，生成领料单 ISSUE-016 和签收单 RECEIPT-017；进入签收区后自动签收，当前尚不可备料。",
+      "time": "2026-10-26T06:29:08.956Z",
+      "success": true
+    },
+    {
+      "id": 24,
+      "type": "receive",
+      "message": "物料签收已自动处理 1 张签收单；每张仅入账一次，使用量不能超过已签收量。",
+      "time": "2026-10-26T06:29:09.012Z",
+      "success": true
+    },
+    {
+      "id": 25,
+      "type": "unpack",
+      "message": "已去除 RAW-77 外包装，生成 UNPACK-018；来源与批次继承，总量不变。请打印贴标，再进入备料。",
+      "time": "2026-10-26T06:29:09.030Z",
+      "success": true
+    },
+    {
+      "id": 26,
+      "type": "print",
+      "message": "已打印原标签；来源余额与任务份数保持不变。",
+      "time": "2026-10-26T06:29:09.075Z",
+      "success": true
+    },
+    {
+      "id": 27,
+      "type": "attach",
+      "message": "标签 UNPACK-018 已与对应实物核对贴附。",
+      "time": "2026-10-26T06:29:09.103Z",
+      "success": true
+    },
+    {
+      "id": 28,
+      "type": "scan",
+      "message": "已选择 UNPACK-018，可用 25kg。",
+      "time": "2026-10-26T06:29:34.258Z",
+      "success": true
+    },
+    {
+      "id": 29,
+      "type": "package",
+      "message": "备料业务成功：完成 1 份任务，生成 1 张标签；请另行打印、贴标。",
+      "time": "2026-10-26T06:29:34.317Z",
+      "success": true
+    },
+    {
+      "id": 30,
+      "type": "print",
+      "message": "模拟缺纸：业务记录已保存，纸张未输出。请查明细后补打，勿重复完成任务。",
+      "time": "2026-10-26T06:29:34.352Z",
+      "success": true
+    },
+    {
+      "id": 31,
+      "type": "print",
+      "message": "已补打原标签；来源余额与任务份数保持不变。",
+      "time": "2026-10-26T06:29:34.448Z",
+      "success": true
+    },
+    {
+      "id": 32,
+      "type": "attach",
+      "message": "标签 OVERALL-020 已与对应实物核对贴附。",
+      "time": "2026-10-26T06:29:34.507Z",
+      "success": true
+    },
+    {
+      "id": 33,
+      "type": "tare",
+      "message": "空容器去皮完成：皮重 0.10kg。",
+      "time": "2026-10-26T06:29:34.554Z",
+      "success": true
+    },
+    {
+      "id": 34,
+      "type": "gross",
+      "message": "模拟秤示数已改变，稳定计时重新开始。",
+      "time": "2026-10-26T06:29:34.605Z",
+      "success": true
+    },
+    {
+      "id": 35,
+      "type": "weigh",
+      "message": "第 1 桶称量完成，净重 0.5kg；请打印并贴标。",
+      "time": "2026-10-26T06:29:35.831Z",
+      "success": true
+    },
+    {
+      "id": 36,
+      "type": "print",
+      "message": "已打印原标签；来源余额与任务份数保持不变。",
+      "time": "2026-10-26T06:29:35.868Z",
+      "success": true
+    },
+    {
+      "id": 37,
+      "type": "attach",
+      "message": "标签 WEIGH-022 已与对应实物核对贴附。",
+      "time": "2026-10-26T06:29:35.905Z",
+      "success": true
+    },
+    {
+      "id": 38,
+      "type": "tare",
+      "message": "空容器去皮完成：皮重 0.10kg。",
+      "time": "2026-10-26T06:29:35.931Z",
+      "success": true
+    },
+    {
+      "id": 39,
+      "type": "gross",
+      "message": "模拟秤示数已改变，稳定计时重新开始。",
+      "time": "2026-10-26T06:29:36.007Z",
+      "success": true
+    },
+    {
+      "id": 40,
+      "type": "weigh",
+      "message": "第 2 桶称量完成，净重 0.5kg；请打印并贴标。",
+      "time": "2026-10-26T06:29:37.153Z",
+      "success": true
+    },
+    {
+      "id": 41,
+      "type": "print",
+      "message": "已打印原标签；来源余额与任务份数保持不变。",
+      "time": "2026-10-26T06:29:37.185Z",
+      "success": true
+    },
+    {
+      "id": 42,
+      "type": "attach",
+      "message": "标签 WEIGH-024 已与对应实物核对贴附。",
+      "time": "2026-10-26T06:29:37.211Z",
+      "success": true
+    },
+    {
+      "id": 43,
+      "type": "tare",
+      "message": "空容器去皮完成：皮重 0.10kg。",
+      "time": "2026-10-26T06:29:37.233Z",
+      "success": true
+    },
+    {
+      "id": 44,
+      "type": "gross",
+      "message": "模拟秤示数已改变，稳定计时重新开始。",
+      "time": "2026-10-26T06:29:37.284Z",
+      "success": true
+    },
+    {
+      "id": 45,
+      "type": "weigh",
+      "message": "第 3 桶称量完成，净重 0.5kg；请打印并贴标。",
+      "time": "2026-10-26T06:29:38.512Z",
+      "success": true
+    },
+    {
+      "id": 46,
+      "type": "print",
+      "message": "已打印原标签；来源余额与任务份数保持不变。",
+      "time": "2026-10-26T06:29:38.547Z",
+      "success": true
+    },
+    {
+      "id": 47,
+      "type": "attach",
+      "message": "标签 WEIGH-026 已与对应实物核对贴附。",
+      "time": "2026-10-26T06:29:38.574Z",
+      "success": true
+    },
+    {
+      "id": 48,
+      "type": "prepare-tea",
+      "message": "三份茶叶教学物料已准备，每份 1kg；此数量用于路线演示，不是产品配方。",
+      "time": "2026-10-26T06:29:38.625Z",
+      "success": true
+    },
+    {
+      "id": 49,
+      "type": "print",
+      "message": "已打印原标签；来源余额与任务份数保持不变。",
+      "time": "2026-10-26T06:29:38.685Z",
+      "success": true
+    },
+    {
+      "id": 50,
+      "type": "attach",
+      "message": "标签 TEA-028 已与对应实物核对贴附。",
+      "time": "2026-10-26T06:29:38.713Z",
+      "success": true
+    },
+    {
+      "id": 51,
+      "type": "attach",
+      "message": "标签 TEA-029 已与对应实物核对贴附。",
+      "time": "2026-10-26T06:29:38.746Z",
+      "success": true
+    },
+    {
+      "id": 52,
+      "type": "attach",
+      "message": "标签 TEA-030 已与对应实物核对贴附。",
+      "time": "2026-10-26T06:29:38.790Z",
+      "success": true
+    },
+    {
+      "id": 53,
+      "type": "advance",
+      "message": "进入汇集与前处理投料，前面的记录已保留。",
+      "time": "2026-10-26T06:29:38.817Z",
+      "success": true
+    },
+    {
+      "id": 54,
+      "type": "collect",
+      "message": "已归集第 1 桶：赤藓糖醇 25kg。",
+      "time": "2026-10-26T06:30:18.821Z",
+      "success": true
+    },
+    {
+      "id": 55,
+      "type": "collect",
+      "message": "已归集第 2 桶：赤藓糖醇 25kg。",
+      "time": "2026-10-26T06:30:18.887Z",
+      "success": true
+    },
+    {
+      "id": 56,
+      "type": "collect",
+      "message": "已归集第 3 桶：赤藓糖醇 25kg。",
+      "time": "2026-10-26T06:30:18.932Z",
+      "success": true
+    },
+    {
+      "id": 57,
+      "type": "collect",
+      "message": "已归集第 1 桶：小料 A（教学） 0.5kg。",
+      "time": "2026-10-26T06:30:18.978Z",
+      "success": true
+    },
+    {
+      "id": 58,
+      "type": "collect",
+      "message": "已归集第 2 桶：小料 A（教学） 0.5kg。",
+      "time": "2026-10-26T06:30:19.030Z",
+      "success": true
+    },
+    {
+      "id": 59,
+      "type": "collect",
+      "message": "已归集第 3 桶：小料 A（教学） 0.5kg。",
+      "time": "2026-10-26T06:30:19.073Z",
+      "success": true
+    },
+    {
+      "id": 60,
+      "type": "collect",
+      "message": "已归集第 1 桶：茶叶（教学） 1kg。",
+      "time": "2026-10-26T06:30:19.119Z",
+      "success": true
+    },
+    {
+      "id": 61,
+      "type": "collect",
+      "message": "已归集第 2 桶：茶叶（教学） 1kg。",
+      "time": "2026-10-26T06:30:19.156Z",
+      "success": true
+    },
+    {
+      "id": 62,
+      "type": "collect",
+      "message": "已归集第 3 桶：茶叶（教学） 1kg。",
+      "time": "2026-10-26T06:30:19.213Z",
+      "success": true
+    },
+    {
+      "id": 63,
+      "type": "feed",
+      "message": "赤藓糖醇 25kg 已投到 D-01；中间料沿对应管路汇入调配桶（教学动画）。",
+      "time": "2026-10-26T06:30:19.274Z",
+      "success": true
+    },
+    {
+      "id": 64,
+      "type": "feed",
+      "message": "赤藓糖醇 25kg 已投到 D-01；中间料沿对应管路汇入调配桶（教学动画）。",
+      "time": "2026-10-26T06:30:19.338Z",
+      "success": true
+    },
+    {
+      "id": 65,
+      "type": "feed",
+      "message": "赤藓糖醇 25kg 已投到 D-01；中间料沿对应管路汇入调配桶（教学动画）。",
+      "time": "2026-10-26T06:30:19.429Z",
+      "success": true
+    },
+    {
+      "id": 66,
+      "type": "feed",
+      "message": "茶叶（教学） 1kg 已投到 E-01；中间料沿对应管路汇入调配桶（教学动画）。",
+      "time": "2026-10-26T06:30:19.502Z",
+      "success": true
+    },
+    {
+      "id": 67,
+      "type": "feed",
+      "message": "茶叶（教学） 1kg 已投到 E-01；中间料沿对应管路汇入调配桶（教学动画）。",
+      "time": "2026-10-26T06:30:19.556Z",
+      "success": true
+    },
+    {
+      "id": 68,
+      "type": "feed",
+      "message": "茶叶（教学） 1kg 已投到 E-01；中间料沿对应管路汇入调配桶（教学动画）。",
+      "time": "2026-10-26T06:30:19.648Z",
+      "success": true
+    },
+    {
+      "id": 69,
+      "type": "feed",
+      "message": "小料 A（教学） 0.5kg 已投到 M-01；调配教学投料完成。",
+      "time": "2026-10-26T06:30:19.738Z",
+      "success": true
+    },
+    {
+      "id": 70,
+      "type": "feed",
+      "message": "小料 A（教学） 0.5kg 已投到 M-01；调配教学投料完成。",
+      "time": "2026-10-26T06:30:19.820Z",
+      "success": true
+    },
+    {
+      "id": 71,
+      "type": "feed",
+      "message": "小料 A（教学） 0.5kg 已投到 M-01；调配教学投料完成。",
+      "time": "2026-10-26T06:30:19.883Z",
+      "success": true
+    },
+    {
+      "id": 72,
+      "type": "advance",
+      "message": "演练完成，任务、标签与数量账已核对。",
+      "time": "2026-10-26T06:30:19.947Z",
+      "success": true
+    }
+  ],
+  "teaPrepared": true
+}

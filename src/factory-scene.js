@@ -7,7 +7,7 @@ import { FACTORY_ASSETS } from './factory-assets.js';
 import { CHAPTERS, kg, scaleStatus } from './factory-state.js';
 import { box, cylinder, pipe, sign, table, cart, kiosk, downstream, mat } from './factory-props.js';
 
-export async function createFactoryScene({onSelect,onTag,onProgress,onDropTag}) {
+export async function createFactoryScene({onSelect,onTag,onProgress,onDropTag,onPallet}) {
   const host=document.querySelector('#factory-scene');
   const scene=new THREE.Scene();scene.background=new THREE.Color('#e8ede4');
   const renderer=new THREE.WebGLRenderer({antialias:true});renderer.setPixelRatio(Math.min(devicePixelRatio,1.8));
@@ -24,7 +24,7 @@ export async function createFactoryScene({onSelect,onTag,onProgress,onDropTag}) 
   const staticRoot=new THREE.Group();scene.add(staticRoot);
   box(staticRoot,[27,.4,21],[0,-.28,.6],'#b6c6ad');box(staticRoot,[26.8,.1,20.8],[0,-.03,.6],'#f1f1e7');
   const grid=new THREE.GridHelper(26,52,'#d2dacb','#e1e5d8');grid.position.y=.03;scene.add(grid);
-  const clickable=[],labels={},actors=new Map(),tweens=new Map();
+  const clickable=[],labels={},actors=new Map(),tweens=new Map(),palletActors=new Map();
   const pads={},outlineMat=new THREE.LineBasicMaterial({color:'#859d80'});
   function clickableObject(object,zone,tagId) {object.userData.zone=zone;if(tagId)object.userData.tagId=tagId;clickable.push(object);return object;}
   for(const [id,z] of Object.entries(ZONES)) {
@@ -45,7 +45,11 @@ export async function createFactoryScene({onSelect,onTag,onProgress,onDropTag}) 
   }
   for(let x=-12;x<12;x+=.65)for(const z of [-3.12,3.8])box(staticRoot,[.34,.012,.055],[x,.043,z],'#c9b96e');
   sign(staticRoot,'MES · 前处理实训车间',[0,2.25,-9.1],5.6,'#315b4a','#e7eee0');
-  kiosk(staticRoot,-9, -6,'产程 DEMO-P01');
+  kiosk(staticRoot,-10.8,-6,'产程 DEMO-P01');
+  kiosk(staticRoot,-7,-7,'物料签收 · 自动处理');
+  sign(staticRoot,'实际仓 WMS',[-3.8,1.9,-7.7],2);
+  sign(staticRoot,'虚拟仓 · 厂内暂存',[-1.2,1.9,-7.7],2);
+  box(staticRoot,[2.3,.025,3.8],[-1.2,.12,-5.9],'#c9dfd4');
   box(staticRoot,[2.5,1.3,.2],[-10,1.2,-7.6],'#d1ddd0');sign(staticRoot,'计划 · 岗位 · 工艺',[-10,1.3,-7.42],2.4);
   table(staticRoot,3,-6);table(staticRoot,9,-7.05);table(staticRoot,-9,1.4);
   const cartTargets=[];
@@ -76,7 +80,7 @@ export async function createFactoryScene({onSelect,onTag,onProgress,onDropTag}) 
     const g=new THREE.Group();g.add(obj);return g;
   }
   function place(name,target,pos,zone,dimension='y') {const obj=model(name,target,dimension);obj.position.set(...pos);scene.add(obj);clickableObject(obj,zone);return obj;}
-  place('pallet',2.8,[-3,.13,-6.25],'warehouse','max');
+  place('pda',.55,[-7.25,1.2,-6.6],'receipt');
   place('scale',1.7,[-9,.16,.2],'weigh');
   place('printer',.52,[3.65,1.08,-6.05],'unpack');place('printer',.48,[9.75,1.08,-7.05],'package');place('printer',.4,[-9.7,1.08,1.45],'weigh');
   const pda=place('pda',.65,[8.3,1.12,-7.05],'package');pda.rotation.x=-.5;
@@ -96,7 +100,7 @@ export async function createFactoryScene({onSelect,onTag,onProgress,onDropTag}) 
     const r=renderer.domElement.getBoundingClientRect();pointer.set((e.clientX-r.left)/r.width*2-1,-(e.clientY-r.top)/r.height*2+1);raycaster.setFromCamera(pointer,camera);
     const hits=raycaster.intersectObjects(clickable.filter(o=>o.visible),true);
     if(!hits.length)return;let target=hits[0].object;while(target&&!target.userData.zone)target=target.parent;
-    if(target){onSelect(target.userData.zone,target.userData.device);if(target.userData.tagId)onTag(target.userData.tagId);}
+    if(target){onSelect(target.userData.zone,target.userData.device);if(target.userData.palletId)onPallet?.(target.userData.palletId);else if(target.userData.tagId)onTag(target.userData.tagId);}
   });
   renderer.domElement.addEventListener('dragover',e=>e.preventDefault());
   renderer.domElement.addEventListener('drop',e=>{
@@ -125,7 +129,9 @@ export async function createFactoryScene({onSelect,onTag,onProgress,onDropTag}) 
     const b=tag.bucket;
     if(DEVICES[tag.location]){const d=DEVICES[tag.location];return d?[d.point[0],1.2,d.point[2]]:null;}
     if(tag.location.startsWith('cart-'))return [-5.05+(b-1)*1.9,.36+(tag.kind==='weigh'?.72:0),tag.kind==='tea'?1.05:.15];
-    if(tag.kind==='raw')return {'RAW-20':[-3.7,.4,-6.5],'RAW-77':[-2.4,.4,-6.5],'RAW-150':[-3,.4,-6.5],'SMALL-RAW':[-3.65,.4,-5.25],'TEA-RAW':[-2.4,.4,-5.25]}[tag.id];
+    if(tag.kind==='raw'){
+      const i=s.roots.indexOf(tag.id);return [-8+(i%2)*.9,.15,-6.5+Math.floor(i/2)*.65];
+    }
     if(tag.kind==='unpack'){const slot={BULK:tag.parentIds[0]==='RAW-20'?0:1,SMALL:2,TEA:3}[tag.material];return [1.3+slot*1.05,.15,-5.15];}
     if(tag.kind==='overall')return [7.25+(b-1)*1.55,.15,-5.25+(s.mode==='bag'?(Number(tag.id.slice(-3))%2)*.75:0)];
     if(tag.kind==='tea')return [7.25+(b-1)*1.55,.15,-4.2];
@@ -143,14 +149,25 @@ export async function createFactoryScene({onSelect,onTag,onProgress,onDropTag}) 
     g.userData.text=text;const old=g.userData.label;g.remove(old);old.material.map.dispose();old.material.dispose();
     g.userData.label=sign(g,text,[0,.99,0],1.75,highlight?'#126b54':'#46614b',highlight?'#e2f1de':'#f9f8e9');
   }
+  function updatePallets(s){
+    for(const p of Object.values(s.pallets)){
+      let g=palletActors.get(p.id);
+      if(!g){g=new THREE.Group();g.add(model('pallet',1.05,'max'));const sack=model('sack',.45);sack.position.y=.18;g.add(sack);g.userData.zone='warehouse';g.userData.palletId=p.id;scene.add(g);clickable.push(g);palletActors.set(p.id,g);}
+      const index=Number(p.id.split('P').at(-1))-1;
+      g.position.set(p.warehouse==='wms'?-3.8:-1.2,.15,-7.2+index*.85);g.visible=p.initialGrams-p.preparedGrams>0;
+      const text=`${p.id} · ${kg(p.initialGrams-p.preparedGrams)}kg`;
+      if(text!==g.userData.text){const old=g.userData.label;if(old){g.remove(old);old.material.map.dispose();old.material.dispose();}g.userData.label=sign(g,text,[0,.95,0],1.6,p.warehouse==='wms'?'#38574e':'#146c61');g.userData.text=text;}
+    }
+    for(const [id,g]of palletActors)if(!s.pallets[id])g.visible=false;
+  }
   function update(s,eventType) {
-    const previous=lastState;lastState=s;const now=performance.now();
+    const previous=lastState;lastState=s;const now=performance.now();updatePallets(s);
     for(const tag of Object.values(s.tags)) {
       if(tag.kind==='raw'&&!s.roots.includes(tag.id))continue;
       const pos=actorPosition(tag,s);if(!pos)continue;
       const g=actors.get(tag.id)||makeActor(tag);const used=tag.remainingGrams===0;
       const feeding=used&&eventType==='feed'&&previous?.tags[tag.id]?.remainingGrams>0;g.visible=!used||feeding||Boolean(tweens.get(tag.id)?.hide);
-      g.userData.zone=tag.location.startsWith('cart-')?'collect':tag.kind==='raw'?'warehouse':tag.kind==='overall'||tag.kind==='tea'?'package':tag.kind==='unpack'?'unpack':'weigh';
+      g.userData.zone=tag.location.startsWith('cart-')?'collect':tag.kind==='raw'?'receipt':tag.kind==='overall'||tag.kind==='tea'?'package':tag.kind==='unpack'?'unpack':'weigh';
       const target=new THREE.Vector3(...pos);
       if(!g.userData.positioned){g.position.copy(target);g.userData.positioned=true;}
       else if(g.position.distanceTo(target)>.03)tweens.set(tag.id,{from:g.position.clone(),to:target,start:now,hide:feeding});
