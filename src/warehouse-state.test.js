@@ -6,17 +6,14 @@ const ok=(s,type,p={})=>{const r=act(s,type,p);assert.equal(r.ok,true,r.message)
 const issue=(s,palletId,grams,extra={})=>ok(s,'issue',{palletId,grams,campaign:'DEMO-P01',batch:'DEMO-A',...extra});
 const receive=s=>ok(s,'receive',{campaign:'DEMO-P01',batch:'DEMO-A'});
 function prep(s,source='RAW-77'){
-  s=ok(s,'unpack',{sourceId:source});
-  const tag=s.tags[s.unpackedSources[source]],job=s.printJobs.at(-1);
-  s=ok(s,'print',{jobId:job.id});s=ok(s,'attach',{tagId:tag.id,bucket:0});
-  return ok(s,'scan',{sourceId:tag.id});
+  return ok(s,'scan',{sourceId:source});
 }
 function moveToPreparation(s){
   s=ok(s,'advance');
-  for(const id of ['RAW-77','SMALL-RAW','TEA-RAW'])s=ok(s,'unpack',{sourceId:id});
+  s=ok(s,'unpack',{sourceId:'SMALL-RAW'});
   for(const j of s.printJobs)s=ok(s,'print',{jobId:j.id});
   for(const t of Object.values(s.tags).filter(t=>t.kind==='unpack'))s=ok(s,'attach',{tagId:t.id,bucket:0});
-  s=ok(s,'advance');return ok(s,'scan',{sourceId:s.unpackedSources['RAW-77']});
+  return ok(s,'scan',{sourceId:'RAW-77'});
 }
 test('each pallet code identifies its warehouse, material, batch and independent quantity',()=>{
   const s=createFactoryState();const p=s.pallets['WMS-P02'];
@@ -65,28 +62,28 @@ test('a 77kg pallet signed for 75kg permits only 75kg preparation, preserving 2k
   const job=s.printJobs.at(-1);s=ok(s,'print',{jobId:job.id,fail:true});s=ok(s,'print',{jobId:job.id});s=ok(s,'print',{jobId:job.id});
   assert.equal(palletBalances(s,'WMS-P02').preparedGrams,75000);assert.equal(ledger(s).differenceGrams,0);
 });
-test('supplementary receipts remain tied to the same pallet and new unpack labels',()=>{
-  let s=createFactoryState();for(const [id,grams]of [['WMS-P02',75000],['WMS-P03',1500],['WMS-P04',3000]])s=issue(s,id,grams);
-  s=moveToPreparation(receive(s));const first=s.unpackedSources['RAW-77'];
-  s=issue(s,'WMS-P02',2000);assert.equal(s.tags['RAW-77'].remainingGrams,0);
-  s=receive(s);s=ok(s,'unpack',{sourceId:'RAW-77'});const second=s.unpackedSources['RAW-77'];
-  assert.notEqual(first,second);assert.equal(s.tags[first].grams,75000);assert.equal(s.tags[second].grams,2000);
-  assert.equal(s.tags[second].palletId,'WMS-P02');assert.equal(palletBalances(s,'WMS-P02').signedGrams,77000);
+test('supplementary loose-material receipts create a new unpack label without rewriting the old one',()=>{
+  let s=createFactoryState();for(const [id,grams]of [['WMS-P02',75000],['WMS-P03',1000],['WMS-P04',3000]])s=issue(s,id,grams);
+  s=moveToPreparation(receive(s));const first=s.unpackedSources['SMALL-RAW'];
+  s=issue(s,'WMS-P03',500);s=receive(s);s=ok(s,'unpack',{sourceId:'SMALL-RAW'});const second=s.unpackedSources['SMALL-RAW'];
+  assert.notEqual(first,second);assert.equal(s.tags[first].grams,1000);assert.equal(s.tags[second].grams,500);
+  assert.equal(s.tags[second].palletId,'WMS-P03');assert.equal(palletBalances(s,'WMS-P03').signedGrams,1500);
 });
 test('partly signed pallets can prepare only that part, then replenish without rewriting old labels',()=>{
   let s=createFactoryState();for(const [id,grams]of [['WMS-P02',50000],['WMS-P03',1500],['WMS-P04',3000]])s=issue(s,id,grams);
-  s=moveToPreparation(receive(s));const first=s.unpackedSources['RAW-77'];
+  s=moveToPreparation(receive(s));
   const rejected=act(s,'package',{count:3,labelType:'bucket'});assert.equal(rejected.ok,false);assert.match(rejected.message,/50kg.*75kg/);
   s=ok(s,'package',{count:2,labelType:'bucket'});assert.equal(palletBalances(s,'WMS-P02').signedAvailableGrams,0);
-  s=issue(s,'WMS-P02',25000);s=receive(s);s=prep(s);const next=s.unpackedSources['RAW-77'];
-  assert.notEqual(first,next);assert.equal(s.tags[first].grams,50000);assert.equal(s.tags[next].grams,25000);
+  const firstLabels=Object.values(s.tags).filter(t=>t.kind==='overall').map(t=>({id:t.id,grams:t.grams}));
+  s=issue(s,'WMS-P02',25000);s=receive(s);
+  assert.deepEqual(Object.values(s.tags).filter(t=>t.kind==='overall').map(t=>({id:t.id,grams:t.grams})),firstLabels);
   s=ok(s,'package',{count:1,labelType:'bucket'});assert.equal(palletBalances(s,'WMS-P02').palletRemainingGrams,2000);
 });
-test('virtual warehouse sources also complete unpacking, preparation and all feeding with provenance',()=>{
+test('virtual warehouse sources complete direct whole-package and loose-weighing preparation with provenance',()=>{
   let s=createFactoryState();for(const [id,grams]of [['TEMP-P02',75000],['TEMP-P03',1500],['TEMP-P04',3000]])s=issue(s,id,grams);
-  s=ok(s,'advance');for(const sourceId of ['V-RAW-77','V-SMALL-RAW','V-TEA-RAW'])s=ok(s,'unpack',{sourceId});
+  s=ok(s,'advance');s=ok(s,'unpack',{sourceId:'V-SMALL-RAW'});
   const printAll=s=>{for(const j of s.printJobs.filter(j=>j.status!=='printed'))s=ok(s,'print',{jobId:j.id});for(const t of Object.values(s.tags).filter(t=>t.kind!=='raw'&&!t.attached))s=ok(s,'attach',{tagId:t.id,bucket:t.bucket});return s;};
-  s=ok(printAll(s),'advance');s=ok(s,'scan',{sourceId:s.unpackedSources['V-RAW-77']});s=printAll(ok(s,'package',{count:3,labelType:'bucket'}));
+  s=printAll(s);s=ok(s,'scan',{sourceId:'V-RAW-77'});s=printAll(ok(s,'package',{count:3,labelType:'bucket'}));
   for(const bucket of [1,2,3]){s=ok(s,'tare');s=ok(s,'gross',{grams:600});const r=act(s,'weigh',{bucket},Date.now()+1500);assert.equal(r.ok,true,r.message);s=printAll(r.state);}
   s=printAll(ok(s,'prepare-tea'));s=ok(s,'advance');const tags=Object.values(s.tags).filter(t=>['overall','weigh','tea'].includes(t.kind));
   for(const t of tags)s=ok(s,'collect',{tagId:t.id,bucket:t.bucket});
@@ -96,9 +93,9 @@ test('virtual warehouse sources also complete unpacking, preparation and all fee
 });
 test('one preparation tag can combine pallets while keeping each receipt quota independent',()=>{
   let s=createFactoryState();for(const [id,grams]of [['WMS-P01',20000],['WMS-P02',55000],['WMS-P03',1500],['WMS-P04',3000]])s=issue(s,id,grams);
-  s=ok(receive(s),'advance');for(const sourceId of ['RAW-20','RAW-77','SMALL-RAW','TEA-RAW'])s=ok(s,'unpack',{sourceId});
+  s=ok(receive(s),'advance');s=ok(s,'unpack',{sourceId:'SMALL-RAW'});
   for(const j of s.printJobs)s=ok(s,'print',{jobId:j.id});for(const t of Object.values(s.tags).filter(t=>t.kind==='unpack'))s=ok(s,'attach',{tagId:t.id,bucket:0});
-  s=ok(s,'advance');for(const id of ['RAW-20','RAW-77'])s=ok(s,'scan',{sourceId:s.unpackedSources[id]});
+  for(const id of ['RAW-20','RAW-77'])s=ok(s,'scan',{sourceId:id});
   s=ok(s,'package',{count:3,labelType:'bucket'});const t=Object.values(s.tags).find(t=>t.kind==='overall');
   assert.equal(t.parentIds.length,2);assert.equal(t.palletId,null);
   assert.equal(palletBalances(s,'WMS-P01').preparedGrams,20000);assert.equal(palletBalances(s,'WMS-P02').preparedGrams,55000);

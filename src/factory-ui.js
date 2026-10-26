@@ -1,5 +1,5 @@
 import { warehousePanel, palletInfo } from './warehouse-panels.js';
-import { palletBalances, warehouseLedger, availableUnpacked } from './warehouse-state.js';
+import { palletBalances, warehouseLedger } from './warehouse-state.js';
 import './factory.css';
 import { createFactoryScene } from './factory-scene.js';
 import { ZONES } from './factory-layout.js';
@@ -30,12 +30,12 @@ function render(){
   $('#view-title').textContent=zone==='overview'?'工厂全景':ZONES[zone].name;
   $('#zone-nav').innerHTML=Object.entries(ZONES).map(([id,z])=>`<button data-zone="${id}" class="${id===zone?'active':''}" aria-pressed="${id===zone}"><span>${z.code}</span>${z.name}</button>`).join('');
   $('#lesson-progress').hidden=mode!=='training';
-  $('#lesson-progress').innerHTML=CHAPTERS.slice(0,state.mode==='bag'?3:4).map((c,i)=>`<button data-chapter="${i}" class="${i<state.chapter||state.finished?'done':i===state.chapter?'current':''}" ${i===state.chapter?'aria-current="step"':''}><span>${i<state.chapter||state.finished?'✓ 已完成':'CHAPTER '+String(i+1).padStart(2,'0')}</span>${c.title}</button>`).join('');
+  $('#lesson-progress').innerHTML=CHAPTERS.slice(0,state.mode==='bag'?2:3).map((c,i)=>`<button data-chapter="${i}" class="${i<state.chapter||state.finished?'done':i===state.chapter?'current':''}" ${i===state.chapter?'aria-current="step"':''}><span>${i<state.chapter||state.finished?'✓ 已完成':'CHAPTER '+String(i+1).padStart(2,'0')}</span>${c.title}</button>`).join('');
   renderPanel();
   const l=ledger(state),completed=state.packageTasks.filter(t=>t.done).length;
   const w=warehouseLedger(state);
   const quotas=Object.values(state.pallets).filter(p=>p.signedGrams>0).map(p=>`${p.id} 已签${kg(p.signedGrams)} / 已用${kg(p.preparedGrams)} / 可用${kg(p.signedGrams-p.preparedGrams)}kg`).join('；');
-  $('#physical-summary').textContent=state.chapter===0?`仓库未领${kg(w.warehouseGrams)}kg，待签收${kg(w.inTransitGrams)}kg，已签收${kg(l.receivedGrams)}kg。`:state.chapter===1?'已签收部分先脱包；托盘未领部分仍保留，未签收量不能进入备料。':state.chapter===2?quotas:`按任务桶号汇集；已记录 ${state.feeds.length} 次独立投料。`;
+  $('#physical-summary').textContent=state.chapter===0?`仓库未领${kg(w.warehouseGrams)}kg，待签收${kg(w.inTransitGrams)}kg，已签收${kg(l.receivedGrams)}kg。`:state.chapter===1?`${quotas}。整包直接备料；散称按规则脱包并去皮。`:`按任务桶号汇集；已记录 ${state.feeds.length} 次独立投料。`;
   $('#task-summary').textContent=state.finished?'本轮演练完成，业务、标签与数量账已核对。':`整包 ${completed}/3 份 · 称量 ${state.smallTasks.filter(t=>t.done).length}/${state.mode==='bag'?0:3} 份 · 当前${CHAPTERS[state.chapter].title}。`;
   $('#quantity-summary').textContent=`签收 ${kg(l.receivedGrams)} − 已投 ${kg(l.fedGrams)} ＝ 签收范围余量 ${kg(l.remainingGrams)}kg · 差额 ${kg(l.differenceGrams)}kg（仓库未领量另记）`;
   $('#print-jobs').innerHTML=printDesk(state);$('#tag-cards').innerHTML=tagDesk(state,$('#all-tags').checked?'all':'current');
@@ -61,7 +61,7 @@ function showPallet(id){
 function switchTraining(kind){
   syncValues();sessions[state.mode]=state;
   if(state.mode!==kind){state=sessions[kind];values=defaults(kind);}
-  mode='training';panel='task';zone=CHAPTERS[Math.min(state.chapter,3)].zone;error='';
+  mode='training';panel='task';zone=CHAPTERS[Math.min(state.chapter,2)].zone;error='';
   scene?.select(zone);scene?.update(state);render();
 }
 function dispatch(type,payload={}){
@@ -70,7 +70,7 @@ function dispatch(type,payload={}){
   error=result.ok?'':result.message;
   if(!result.ok)notify('已拦截：'+result.message);
   if(result.ok){
-    if(type==='advance'){mode='training';if(state.chapter===2)values.sourceId=availableUnpacked(state,'BULK')[0]?.id;panel='task';zone=CHAPTERS[Math.min(state.chapter,3)].zone;scene.select(zone);}
+    if(type==='advance'){mode='training';if(state.chapter===1)values.sourceId=state.roots.find(id=>state.tags[id].material==='BULK'&&state.tags[id].received&&state.tags[id].remainingGrams>0);panel='task';zone=CHAPTERS[Math.min(state.chapter,2)].zone;scene.select(zone);}
     if(type==='weigh'){const pending=state.smallTasks.find(t=>!t.done);if(pending)values.workBucket=pending.bucket;}
     if(type==='feed'){zone='process';scene.select(zone);}
     if(type==='prepare-tea'){const tag=Object.values(state.tags).find(t=>t.kind==='tea');values.tagId=tag?.id||values.tagId;}
@@ -144,7 +144,7 @@ document.addEventListener('dragleave',e=>{e.target.closest('[data-drop-bucket]')
 document.addEventListener('drop',e=>{const target=e.target.closest('[data-drop-bucket]');if(!target)return;e.preventDefault();target.classList.remove('drag-over');dispatch('collect',{tagId:e.dataTransfer.getData('text/plain'),bucket:Number(target.dataset.dropBucket)});});
 render();
 try{
-  scene=await createFactoryScene({onSelect:selectZone,onTag:showTrace,onPallet:showPallet,onProgress:(n,total)=>{$('#factory-load-progress').textContent=`已载入 ${n} / ${total} 类模型`;},onDropTag:(tagId,bucket)=>dispatch(state.chapter===3?'collect':'attach',{tagId,bucket})});
+  scene=await createFactoryScene({onSelect:selectZone,onTag:showTrace,onPallet:showPallet,onProgress:(n,total)=>{$('#factory-load-progress').textContent=`已载入 ${n} / ${total} 类模型`;},onDropTag:(tagId,bucket)=>dispatch(state.chapter===2?'collect':'attach',{tagId,bucket})});
   scene.update(state);$('#factory-loading').hidden=true;render();
 }catch(e){
   console.error('Factory initialization failed',e);$('#factory-loading').innerHTML='<strong>模型载入未完成</strong><span>请检查网络连接后刷新重试。</span><button class="action-primary" id="reload-factory">重新载入</button>';$('#reload-factory').onclick=()=>location.reload();

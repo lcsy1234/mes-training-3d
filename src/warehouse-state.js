@@ -28,7 +28,7 @@ function signIssue(s,issue,receiptId){
   pallet.signedGrams+=issue.grams;issue.status='signed';
 }
 export function issueMaterial(s,p,newId){
-  check(!s.finished&&s.chapter<=2,'本轮已进入投料或已结束，请重新演练后领料。');
+  check(!s.finished&&s.chapter<=1,'本轮已进入投料或已结束，请重新演练后领料。');
   check(p.campaign===s.campaign,'领料产程不一致。');
   const pallet=s.pallets[p.palletId];check(pallet,'托盘码不存在，请重新扫码。');
   check(p.batch===pallet.batch,'领料批次与托盘批次不一致。');
@@ -46,7 +46,7 @@ export function issueMaterial(s,p,newId){
   signIssue(s,issue,issue.id);return `厂内虚拟仓已取用并自动签收；领料单 ${issue.id} 已保存，仍按签收量限制备料。`;
 }
 export function receivePending(s,p){
-  check(!s.finished&&s.chapter<=2,'当前阶段不能签收新的领料。');
+  check(!s.finished&&s.chapter<=1,'当前阶段不能签收新的领料。');
   check(p.campaign===s.campaign,'产程不一致，请选择 DEMO-P01。');check(p.batch==='DEMO-A','签收批次不一致。');
   const pending=s.receiptOrders.filter(r=>r.status==='pending');
   check(pending.length||s.issueRecords.some(i=>i.status==='signed'),'没有待签收单，请先在实际仓模拟WMS发货，或从虚拟仓领料。');

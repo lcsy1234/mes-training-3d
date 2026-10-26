@@ -54,7 +54,7 @@ export async function createFactoryScene({onSelect,onTag,onProgress,onDropTag,on
   table(staticRoot,3,-6);table(staticRoot,9,-7.05);table(staticRoot,-9,1.4);
   const cartTargets=[];
   for(let i=1;i<=3;i++){const c=cart(staticRoot,-5.05+(i-1)*1.9,.55,i);c.userData.bucket=i;cartTargets.push(c);}
-  kiosk(staticRoot,-7.6,.3,'PAD · 称量');
+  kiosk(staticRoot,-7.6,.3,'备料区 · PAD散称');
   const lamps=[];for(let i=0;i<3;i++)lamps.push(cylinder(staticRoot,.09,.16,[-7.65,2.2+i*.19,.25],['#bd835c','#c7b65b','#4a9872'][i],0));
   const rear=downstream(staticRoot);clickableObject(rear.group,'downstream');
   const downstreamPath=pipe(staticRoot,[[9.5,1.1,.3],[11.5,.6,3.3],[-10,.6,4.8],[-8,1.5,7],[-4,1.5,7],[.1,1.5,7]],'#72a5aa',.065);
@@ -175,7 +175,7 @@ export async function createFactoryScene({onSelect,onTag,onProgress,onDropTag,on
     }
     for(const [id,g] of actors)if(!s.tags[id])g.visible=false;
     if(eventType==='feed')flowStart=now;
-    const active=CHAPTERS[Math.min(s.chapter,3)].zone;
+    const active=CHAPTERS[Math.min(s.chapter,2)].zone;
     Object.entries(labels).forEach(([id,l])=>l.classList.toggle('task-zone',id===active&&!s.finished));
     updateScale(s,Date.now());
   }

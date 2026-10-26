@@ -1,13 +1,17 @@
 import { createWarehouse, issueMaterial, receivePending, registerPreparation, warehouseLedger, receivingReady, availableUnpacked } from './warehouse-state.js';
 export const CHAPTERS = [
   { title:'仓库领料与自动签收', short:'仓库 / 签收', zone:'warehouse', hint:'扫描托盘码，区分实际仓WMS发货与虚拟仓取用，按已签收量控制备料。' },
-  { title:'原料脱包', short:'先脱包', zone:'unpack', hint:'先去除外包装，再生成并贴附脱包码；脱包不称量、不完成备料，也不记作投料。' },
-  { title:'原料备料', short:'整包 / 分称', zone:'package', hint:'脱包后按任务分别进行整包备料、小料分称及茶叶教学备料，备齐后再交接投料。' },
+  { title:'备料区', short:'整包 / 散称', zone:'package', hint:'整包料直接按已签收托盘备料；散装称量使用PAD任务，需要时先脱包，并在空容器状态去皮。' },
   { title:'汇集与前处理投料', short:'汇集投料', zone:'collect', hint:'按任务桶号复核齐套，再按路线进入溶解、萃取或调配；备料完成不等于投料完成。' },
 ];
 export const MATERIALS = { BULK: '赤藓糖醇', SMALL: '小料 A（教学）', TEA: '茶叶（教学）', WRONG: '其他物料' };
+export const PREP_RULES = {
+  BULK:{route:'whole',requiresUnpack:false,requiresTare:false},
+  SMALL:{route:'weigh',requiresUnpack:true,requiresTare:true},
+  TEA:{route:'whole',requiresUnpack:false,requiresTare:false},
+};
 export const kg = grams => (grams / 1000).toLocaleString('zh-CN', { maximumFractionDigits: 3 });
-const TAG_NAMES = { raw:'原料码', unpack:'脱包码', overall:'整包码', weigh:'称量码', tea:'茶叶备料码' };
+const TAG_NAMES = { raw:'原料码', unpack:'脱包码', overall:'整包码', weigh:'称量码', tea:'茶叶整包备料码' };
 export const tagName = kind => TAG_NAMES[kind] || kind;
 export function createFactoryState(mode = 'bucket') {
   const bag = mode === 'bag';
@@ -30,6 +34,7 @@ export function ledger(s) {
 }
 export function scaleStatus(s, now) {
   const netGrams = s.scale.grossGrams - s.scale.tareGrams;
+  if (!availableUnpacked(s,'SMALL').length) return {kind:'setup',text:'PAD任务：请先完成散称物料脱包',netGrams};
   if (!s.scale.tareSet) return {kind:'tare',text:'请先空容器去皮',netGrams};
   if (netGrams < 490) return {kind:'under',text:'欠量 · 请继续加料',netGrams};
   if (netGrams > 510) return {kind:'over',text:'超量 · 请减料',netGrams};
@@ -51,15 +56,15 @@ export function chapterReady(s) {
   if(s.finished)return false;
   if(s.chapter===0)return receivingReady(s);
   if(s.chapter===1){
-    const required=s.roots.filter(id=>!id.endsWith('RAW-20')&&s.tags[id].received);
-    return required.every(id=>{const t=s.tags[s.unpackedSources[id]];return t?.printed&&t.attached;});
-  }
-  if(s.chapter===2){
     const whole=s.packageTasks.every(t=>t.done)&&verified(prepared(s,'overall'));
     return whole&&(s.mode==='bag'||s.smallTasks.every(t=>t.done)&&verified(prepared(s,'weigh'))&&s.teaPrepared&&verified(prepared(s,'tea')));
   }
   const tags=Object.values(s.tags).filter(t=>['overall','weigh','tea'].includes(t.kind));
   return s.teaPrepared&&tags.length>0&&tags.every(t=>t.remainingGrams===0);
+}
+export function preparationSources(s,material) {
+  if(PREP_RULES[material]?.requiresUnpack)return availableUnpacked(s,material);
+  return s.roots.map(id=>s.tags[id]).filter(t=>t.material===material&&t.received&&t.remainingGrams>0);
 }
 function requireCondition(test,message) { if(!test)throw new Error(message); }
 function newId(s,prefix) { s.sequence++;return `${prefix}-${String(s.sequence).padStart(3,'0')}`; }
@@ -88,22 +93,21 @@ function perform(s,type,p,now) {
   if(type==='scan-pallet'){requireCondition(s.pallets[p.palletId],'托盘码不存在。');return `已读取托盘码 ${p.palletId}，扫码不增加库存或签收额度。`;}
   if(type==='advance') {
     requireCondition(chapterReady(s),'当前章节尚未完成：请核对任务、标签打印和实物贴标。');
-    if(s.chapter===3||(s.mode==='bag'&&s.chapter===2)){s.finished=true;return '演练完成，任务、标签与数量账已核对。';}
+    if(s.chapter===2||(s.mode==='bag'&&s.chapter===1)){s.finished=true;return '演练完成，任务、标签与数量账已核对。';}
     s.chapter++;return `进入${CHAPTERS[s.chapter].title}，前面的记录已保留。`;
   }
   if(type==='scan') {
-    needChapter(2);const t=s.tags[p.sourceId];requireCondition(t,'来源码不存在。');
+    needChapter(1);const t=s.tags[p.sourceId];requireCondition(t,'来源码不存在。');
     requireCondition(t.material==='BULK','扫码物料与整包备料任务不一致。');
-    requireCondition(t.kind==='raw'||t.kind==='unpack','请扫描脱包后的来源码。');
+    requireCondition(t.kind==='raw'&&s.roots.includes(t.id),'整包备料请扫描已签收托盘上的原料码。');
     requireCondition(t.received,'该物料批次尚未签收，不能用于备料。');
-    requireCondition(t.kind==='unpack'&&t.printed&&t.attached,'本课先脱包再备料，请完成脱包码打印贴标后扫码。');
     requireCondition(t.remainingGrams>0,'来源码没有可用余额。');
     requireCondition(!s.selectedSources.includes(t.id),'同一码已经选中，重复扫码不会增加可用重量。');
     s.selectedSources.push(t.id);return `已选择 ${t.id}，可用 ${kg(t.remainingGrams)}kg。`;
   }
-  if(type==='remove-source') {needChapter(2);s.selectedSources=s.selectedSources.filter(id=>id!==p.sourceId);return '已移除来源选择，来源实际余额未改变。';}
+  if(type==='remove-source') {needChapter(1);s.selectedSources=s.selectedSources.filter(id=>id!==p.sourceId);return '已移除来源选择，来源实际余额未改变。';}
   if(type==='package') {
-    needChapter(2);const count=Number(p.count),pending=s.packageTasks.filter(t=>!t.done);
+    needChapter(1);const count=Number(p.count),pending=s.packageTasks.filter(t=>!t.done);
     requireCondition(Number.isSafeInteger(count)&&count>0&&count<=pending.length,`贴码桶数须为 1～${pending.length} 的整数；它代表任务份数。`);
     requireCondition(['bucket','bag'].includes(p.labelType),'请选择按桶或按包贴码。');
     requireCondition(!s.labelType||s.labelType===p.labelType,'本物料已有完成记录，请沿用已确定的贴码方式。');
@@ -139,24 +143,27 @@ function perform(s,type,p,now) {
     t.attached=true;return `标签 ${t.id} 已与对应实物核对贴附。`;
   }
   if(type==='unpack') {
-    requireCondition([1,2].includes(s.chapter)&&!s.finished,'请在脱包或备料阶段处理已签收原料。');const t=s.tags[p.sourceId];
+    requireCondition(s.chapter===1&&!s.finished,'请在备料区处理需要散称的已签收原料。');const t=s.tags[p.sourceId];
     requireCondition(t?.kind==='raw'&&s.roots.includes(t.id)&&t.received,'请选择已签收的本课原料来源。');
+    requireCondition(PREP_RULES[t.material]?.requiresUnpack,'该物料按整包备料，不需要脱包。');
     requireCondition(t.remainingGrams>0,'该来源暂无新增签收可用量，不能重复脱包。');
     const id=childTag(s,'unpack',t.remainingGrams,[t.id],0,'unpack');s.unpackedSources[t.id]=id;
     if(t.material==='SMALL')s.unpackId=id;
     printJob(s,[id],`${MATERIALS[t.material]}脱包标签`);
-    return `已去除 ${t.id} 外包装，生成 ${id}；来源与批次继承，总量不变。请打印贴标，再进入备料。`;
+    return `已去除 ${t.id} 外包装，生成 ${id}；来源与批次继承，总量不变。请打印贴标后执行 PAD 散称。`;
   }
   if(type==='gross') {
-    needChapter(2);requireCondition(Number.isSafeInteger(p.grams)&&p.grams>=100&&p.grams<=1100,'毛重须为 0.10～1.10kg，请核对输入。');
+    needChapter(1);requireCondition(availableUnpacked(s,'SMALL').length,'请先在备料区完成散称小料脱包及标签核对。');
+    requireCondition(Number.isSafeInteger(p.grams)&&p.grams>=100&&p.grams<=1100,'毛重须为 0.10～1.10kg，请核对输入。');
     s.scale.grossGrams=p.grams;s.scale.changedAt=now;return '模拟秤示数已改变，稳定计时重新开始。';
   }
   if(type==='tare') {
-    needChapter(2);requireCondition(s.scale.grossGrams===100,'请先清空物料，只保留 0.10kg 空容器再去皮。');
+    needChapter(1);requireCondition(availableUnpacked(s,'SMALL').length,'只有散称任务需要去皮，请先完成散称小料脱包。');
+    requireCondition(s.scale.grossGrams===100,'请先清空物料，只保留 0.10kg 空容器再去皮。');
     s.scale.tareSet=true;s.scale.tareGrams=100;s.scale.changedAt=now;return '空容器去皮完成：皮重 0.10kg。';
   }
   if(type==='weigh') {
-    needChapter(2);const sources=availableUnpacked(s,'SMALL');requireCondition(sources.length,'先完成已签收小料的脱包标签打印并核对贴标。');
+    needChapter(1);const sources=preparationSources(s,'SMALL');requireCondition(sources.length,'先完成已签收散称小料的脱包标签打印并核对贴标。');
     const status=scaleStatus(s,now);requireCondition(status.kind==='ready',status.text);
     const task=s.smallTasks.find(t=>t.bucket===Number(p.bucket));requireCondition(task&&!task.done,'请选择尚未完成的称量任务桶号。');
     const id=childTag(s,'weigh',status.netGrams,sources.map(t=>t.id),task.bucket,'weigh');
@@ -165,14 +172,14 @@ function perform(s,type,p,now) {
     return `第 ${task.bucket} 桶称量完成，净重 ${kg(status.netGrams)}kg；请打印并贴标。`;
   }
   if(type==='prepare-tea') {
-    needChapter(2);requireCondition(!s.teaPrepared,'茶叶教学标签已经生成，请查看现有记录。');
-    const sources=availableUnpacked(s,'TEA');
-    requireCondition(sources.length,'请先完成已签收茶叶的脱包码打印和贴标。');
+    needChapter(1);requireCondition(!s.teaPrepared,'茶叶教学标签已经生成，请查看现有记录。');
+    const sources=preparationSources(s,'TEA');
+    requireCondition(sources.length,'请先签收茶叶整包来源。');
     const ids=[1,2,3].map(bucket=>childTag(s,'tea',1000,sources.map(t=>t.id),bucket,'package'));
-    s.teaPrepared=true;printJob(s,ids,'茶叶教学备料标签');return '三份茶叶教学物料已准备，每份 1kg；此数量用于路线演示，不是产品配方。';
+    s.teaPrepared=true;printJob(s,ids,'茶叶整包备料标签');return '三份茶叶整包教学物料已准备，每份 1kg；不脱包、不去皮，此数量不是产品配方。';
   }
   if(type==='collect') {
-    needChapter(3);const t=s.tags[p.tagId],bucket=Number(p.bucket);
+    needChapter(2);const t=s.tags[p.tagId],bucket=Number(p.bucket);
     requireCondition(t&&['overall','weigh','tea'].includes(t.kind),'请选中备料或称量标签。');
     requireCondition(t.printed&&t.attached,'请先完成标签打印及实物贴标。');
     requireCondition(t.bucket===bucket,'任务桶号不一致，禁止归入其他桶号的料车。');
@@ -181,7 +188,7 @@ function perform(s,type,p,now) {
     s.carts[bucket].push(t.id);t.location=`cart-${bucket}`;return `已归集第 ${bucket} 桶：${MATERIALS[t.material]} ${kg(t.grams)}kg。`;
   }
   if(type==='feed') {
-    needChapter(3);const t=s.tags[p.tagId],bucket=Number(p.bucket);
+    needChapter(2);const t=s.tags[p.tagId],bucket=Number(p.bucket);
     requireCondition(t&&['overall','weigh','tea'].includes(t.kind),'请选择本课待投料标签。');
     requireCondition(t.bucket===bucket,'标签任务桶号与当前投料任务不一致。');
     const missing=Object.values(s.tags).filter(item=>item.bucket===bucket&&['overall','weigh','tea'].includes(item.kind)&&!s.carts[bucket]?.includes(item.id)).map(item=>`${MATERIALS[item.material]}（${item.id}）`);
