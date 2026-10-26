@@ -1,8 +1,8 @@
 {
   "title": "MES 工厂前处理实训记录",
-  "version": 2,
+  "version": 3,
   "simulated": true,
-  "exportedAt": "2026-10-25T18:53:40.399Z",
+  "exportedAt": "2026-10-26T03:19:30.751Z",
   "ledger": {
     "receivedGrams": 105000,
     "remainingGrams": 25500,
@@ -42,7 +42,7 @@
       "material": "BULK",
       "batch": "DEMO-A",
       "grams": 77000,
-      "remainingGrams": 2000,
+      "remainingGrams": 0,
       "received": true,
       "printed": true,
       "attached": true,
@@ -116,77 +116,32 @@
       "location": "warehouse",
       "itemGrams": 25000
     },
-    "OVERALL-001": {
-      "id": "OVERALL-001",
-      "kind": "overall",
-      "grams": 25000,
-      "remainingGrams": 0,
+    "UNPACK-001": {
+      "id": "UNPACK-001",
+      "kind": "unpack",
+      "grams": 77000,
+      "remainingGrams": 2000,
       "material": "BULK",
       "batch": "DEMO-A",
-      "bucket": 1,
+      "bucket": 0,
       "parentIds": [
         "RAW-77"
       ],
       "allocations": [
         {
           "id": "RAW-77",
-          "grams": 25000
+          "grams": 77000
         }
       ],
-      "location": "D-01",
+      "location": "unpack",
+      "itemGrams": 25000,
       "received": true,
       "printed": true,
       "attached": true,
-      "jobId": "PRINT-004"
+      "jobId": "PRINT-002"
     },
-    "OVERALL-002": {
-      "id": "OVERALL-002",
-      "kind": "overall",
-      "grams": 25000,
-      "remainingGrams": 0,
-      "material": "BULK",
-      "batch": "DEMO-A",
-      "bucket": 2,
-      "parentIds": [
-        "RAW-77"
-      ],
-      "allocations": [
-        {
-          "id": "RAW-77",
-          "grams": 25000
-        }
-      ],
-      "location": "D-01",
-      "received": true,
-      "printed": true,
-      "attached": true,
-      "jobId": "PRINT-004"
-    },
-    "OVERALL-003": {
-      "id": "OVERALL-003",
-      "kind": "overall",
-      "grams": 25000,
-      "remainingGrams": 0,
-      "material": "BULK",
-      "batch": "DEMO-A",
-      "bucket": 3,
-      "parentIds": [
-        "RAW-77"
-      ],
-      "allocations": [
-        {
-          "id": "RAW-77",
-          "grams": 25000
-        }
-      ],
-      "location": "D-01",
-      "received": true,
-      "printed": true,
-      "attached": true,
-      "jobId": "PRINT-004"
-    },
-    "UNPACK-005": {
-      "id": "UNPACK-005",
+    "UNPACK-003": {
+      "id": "UNPACK-003",
       "kind": "unpack",
       "grams": 5000,
       "remainingGrams": 3500,
@@ -203,52 +158,103 @@
         }
       ],
       "location": "unpack",
+      "itemGrams": 25000,
+      "received": true,
+      "printed": true,
+      "attached": true,
+      "jobId": "PRINT-004"
+    },
+    "UNPACK-005": {
+      "id": "UNPACK-005",
+      "kind": "unpack",
+      "grams": 3000,
+      "remainingGrams": 0,
+      "material": "TEA",
+      "batch": "DEMO-A",
+      "bucket": 0,
+      "parentIds": [
+        "TEA-RAW"
+      ],
+      "allocations": [
+        {
+          "id": "TEA-RAW",
+          "grams": 3000
+        }
+      ],
+      "location": "unpack",
+      "itemGrams": 25000,
       "received": true,
       "printed": true,
       "attached": true,
       "jobId": "PRINT-006"
     },
-    "WEIGH-007": {
-      "id": "WEIGH-007",
-      "kind": "weigh",
-      "grams": 500,
+    "OVERALL-007": {
+      "id": "OVERALL-007",
+      "kind": "overall",
+      "grams": 25000,
       "remainingGrams": 0,
-      "material": "SMALL",
+      "material": "BULK",
       "batch": "DEMO-A",
       "bucket": 1,
       "parentIds": [
-        "UNPACK-005"
+        "UNPACK-001"
       ],
       "allocations": [
         {
-          "id": "UNPACK-005",
-          "grams": 500
+          "id": "UNPACK-001",
+          "grams": 25000
         }
       ],
-      "location": "M-01",
+      "location": "D-01",
+      "itemGrams": 25000,
       "received": true,
       "printed": true,
       "attached": true,
-      "jobId": "PRINT-008"
+      "jobId": "PRINT-010"
     },
-    "WEIGH-009": {
-      "id": "WEIGH-009",
-      "kind": "weigh",
-      "grams": 500,
+    "OVERALL-008": {
+      "id": "OVERALL-008",
+      "kind": "overall",
+      "grams": 25000,
       "remainingGrams": 0,
-      "material": "SMALL",
+      "material": "BULK",
       "batch": "DEMO-A",
       "bucket": 2,
       "parentIds": [
-        "UNPACK-005"
+        "UNPACK-001"
       ],
       "allocations": [
         {
-          "id": "UNPACK-005",
-          "grams": 500
+          "id": "UNPACK-001",
+          "grams": 25000
         }
       ],
-      "location": "M-01",
+      "location": "D-01",
+      "itemGrams": 25000,
+      "received": true,
+      "printed": true,
+      "attached": true,
+      "jobId": "PRINT-010"
+    },
+    "OVERALL-009": {
+      "id": "OVERALL-009",
+      "kind": "overall",
+      "grams": 25000,
+      "remainingGrams": 0,
+      "material": "BULK",
+      "batch": "DEMO-A",
+      "bucket": 3,
+      "parentIds": [
+        "UNPACK-001"
+      ],
+      "allocations": [
+        {
+          "id": "UNPACK-001",
+          "grams": 25000
+        }
+      ],
+      "location": "D-01",
+      "itemGrams": 25000,
       "received": true,
       "printed": true,
       "attached": true,
@@ -261,24 +267,73 @@
       "remainingGrams": 0,
       "material": "SMALL",
       "batch": "DEMO-A",
-      "bucket": 3,
+      "bucket": 1,
       "parentIds": [
-        "UNPACK-005"
+        "UNPACK-003"
       ],
       "allocations": [
         {
-          "id": "UNPACK-005",
+          "id": "UNPACK-003",
           "grams": 500
         }
       ],
       "location": "M-01",
+      "itemGrams": 25000,
       "received": true,
       "printed": true,
       "attached": true,
       "jobId": "PRINT-012"
     },
-    "TEA-013": {
-      "id": "TEA-013",
+    "WEIGH-013": {
+      "id": "WEIGH-013",
+      "kind": "weigh",
+      "grams": 500,
+      "remainingGrams": 0,
+      "material": "SMALL",
+      "batch": "DEMO-A",
+      "bucket": 2,
+      "parentIds": [
+        "UNPACK-003"
+      ],
+      "allocations": [
+        {
+          "id": "UNPACK-003",
+          "grams": 500
+        }
+      ],
+      "location": "M-01",
+      "itemGrams": 25000,
+      "received": true,
+      "printed": true,
+      "attached": true,
+      "jobId": "PRINT-014"
+    },
+    "WEIGH-015": {
+      "id": "WEIGH-015",
+      "kind": "weigh",
+      "grams": 500,
+      "remainingGrams": 0,
+      "material": "SMALL",
+      "batch": "DEMO-A",
+      "bucket": 3,
+      "parentIds": [
+        "UNPACK-003"
+      ],
+      "allocations": [
+        {
+          "id": "UNPACK-003",
+          "grams": 500
+        }
+      ],
+      "location": "M-01",
+      "itemGrams": 25000,
+      "received": true,
+      "printed": true,
+      "attached": true,
+      "jobId": "PRINT-016"
+    },
+    "TEA-017": {
+      "id": "TEA-017",
       "kind": "tea",
       "grams": 1000,
       "remainingGrams": 0,
@@ -286,22 +341,23 @@
       "batch": "DEMO-A",
       "bucket": 1,
       "parentIds": [
-        "TEA-RAW"
+        "UNPACK-005"
       ],
       "allocations": [
         {
-          "id": "TEA-RAW",
+          "id": "UNPACK-005",
           "grams": 1000
         }
       ],
       "location": "E-01",
+      "itemGrams": 25000,
       "received": true,
       "printed": true,
       "attached": true,
-      "jobId": "PRINT-016"
+      "jobId": "PRINT-020"
     },
-    "TEA-014": {
-      "id": "TEA-014",
+    "TEA-018": {
+      "id": "TEA-018",
       "kind": "tea",
       "grams": 1000,
       "remainingGrams": 0,
@@ -309,22 +365,23 @@
       "batch": "DEMO-A",
       "bucket": 2,
       "parentIds": [
-        "TEA-RAW"
+        "UNPACK-005"
       ],
       "allocations": [
         {
-          "id": "TEA-RAW",
+          "id": "UNPACK-005",
           "grams": 1000
         }
       ],
       "location": "E-01",
+      "itemGrams": 25000,
       "received": true,
       "printed": true,
       "attached": true,
-      "jobId": "PRINT-016"
+      "jobId": "PRINT-020"
     },
-    "TEA-015": {
-      "id": "TEA-015",
+    "TEA-019": {
+      "id": "TEA-019",
       "kind": "tea",
       "grams": 1000,
       "remainingGrams": 0,
@@ -332,23 +389,24 @@
       "batch": "DEMO-A",
       "bucket": 3,
       "parentIds": [
-        "TEA-RAW"
+        "UNPACK-005"
       ],
       "allocations": [
         {
-          "id": "TEA-RAW",
+          "id": "UNPACK-005",
           "grams": 1000
         }
       ],
       "location": "E-01",
+      "itemGrams": 25000,
       "received": true,
       "printed": true,
       "attached": true,
-      "jobId": "PRINT-016"
+      "jobId": "PRINT-020"
     }
   },
   "selectedSources": [
-    "RAW-77"
+    "UNPACK-001"
   ],
   "packageTasks": [
     {
@@ -357,7 +415,7 @@
       "grams": 25000,
       "done": true,
       "tagIds": [
-        "OVERALL-001"
+        "OVERALL-007"
       ]
     },
     {
@@ -366,7 +424,7 @@
       "grams": 25000,
       "done": true,
       "tagIds": [
-        "OVERALL-002"
+        "OVERALL-008"
       ]
     },
     {
@@ -375,7 +433,7 @@
       "grams": 25000,
       "done": true,
       "tagIds": [
-        "OVERALL-003"
+        "OVERALL-009"
       ]
     }
   ],
@@ -385,7 +443,7 @@
       "bucket": 1,
       "done": true,
       "tagIds": [
-        "WEIGH-007"
+        "WEIGH-011"
       ]
     },
     {
@@ -393,7 +451,7 @@
       "bucket": 2,
       "done": true,
       "tagIds": [
-        "WEIGH-009"
+        "WEIGH-013"
       ]
     },
     {
@@ -401,26 +459,33 @@
       "bucket": 3,
       "done": true,
       "tagIds": [
-        "WEIGH-011"
+        "WEIGH-015"
       ]
     }
   ],
   "labelType": "bucket",
   "printJobs": [
     {
-      "id": "PRINT-004",
-      "title": "整包备料标签",
+      "id": "PRINT-002",
+      "title": "赤藓糖醇脱包标签",
       "tagIds": [
-        "OVERALL-001",
-        "OVERALL-002",
-        "OVERALL-003"
+        "UNPACK-001"
+      ],
+      "status": "printed",
+      "attempts": 1
+    },
+    {
+      "id": "PRINT-004",
+      "title": "小料 A（教学）脱包标签",
+      "tagIds": [
+        "UNPACK-003"
       ],
       "status": "printed",
       "attempts": 1
     },
     {
       "id": "PRINT-006",
-      "title": "脱包标签",
+      "title": "茶叶（教学）脱包标签",
       "tagIds": [
         "UNPACK-005"
       ],
@@ -428,26 +493,19 @@
       "attempts": 1
     },
     {
-      "id": "PRINT-008",
-      "title": "第 1 桶称量标签",
-      "tagIds": [
-        "WEIGH-007"
-      ],
-      "status": "printed",
-      "attempts": 1
-    },
-    {
       "id": "PRINT-010",
-      "title": "第 2 桶称量标签",
+      "title": "整包备料标签",
       "tagIds": [
-        "WEIGH-009"
+        "OVERALL-007",
+        "OVERALL-008",
+        "OVERALL-009"
       ],
       "status": "printed",
-      "attempts": 1
+      "attempts": 2
     },
     {
       "id": "PRINT-012",
-      "title": "第 3 桶称量标签",
+      "title": "第 1 桶称量标签",
       "tagIds": [
         "WEIGH-011"
       ],
@@ -455,485 +513,543 @@
       "attempts": 1
     },
     {
+      "id": "PRINT-014",
+      "title": "第 2 桶称量标签",
+      "tagIds": [
+        "WEIGH-013"
+      ],
+      "status": "printed",
+      "attempts": 1
+    },
+    {
       "id": "PRINT-016",
+      "title": "第 3 桶称量标签",
+      "tagIds": [
+        "WEIGH-015"
+      ],
+      "status": "printed",
+      "attempts": 1
+    },
+    {
+      "id": "PRINT-020",
       "title": "茶叶教学备料标签",
       "tagIds": [
-        "TEA-013",
-        "TEA-014",
-        "TEA-015"
+        "TEA-017",
+        "TEA-018",
+        "TEA-019"
       ],
       "status": "printed",
       "attempts": 1
     }
   ],
-  "unpackId": "UNPACK-005",
+  "unpackedSources": {
+    "RAW-77": "UNPACK-001",
+    "SMALL-RAW": "UNPACK-003",
+    "TEA-RAW": "UNPACK-005"
+  },
+  "unpackId": "UNPACK-003",
   "scale": {
     "tareSet": false,
     "tareGrams": 0,
     "grossGrams": 100,
-    "changedAt": 1792954396963
+    "changedAt": 1792984651306
   },
   "carts": {
     "1": [
-      "OVERALL-001",
-      "WEIGH-007",
-      "TEA-013"
+      "OVERALL-007",
+      "WEIGH-011",
+      "TEA-017"
     ],
     "2": [
-      "OVERALL-002",
-      "WEIGH-009",
-      "TEA-014"
+      "OVERALL-008",
+      "WEIGH-013",
+      "TEA-018"
     ],
     "3": [
-      "OVERALL-003",
-      "WEIGH-011",
-      "TEA-015"
+      "OVERALL-009",
+      "WEIGH-015",
+      "TEA-019"
     ]
   },
   "feeds": [
     {
-      "tagId": "OVERALL-001",
+      "tagId": "OVERALL-007",
       "bucket": 1,
       "device": "D-01",
       "grams": 25000,
       "kind": "overall"
     },
     {
-      "tagId": "OVERALL-002",
+      "tagId": "OVERALL-008",
       "bucket": 2,
       "device": "D-01",
       "grams": 25000,
       "kind": "overall"
     },
     {
-      "tagId": "OVERALL-003",
+      "tagId": "OVERALL-009",
       "bucket": 3,
       "device": "D-01",
       "grams": 25000,
       "kind": "overall"
     },
     {
-      "tagId": "TEA-013",
+      "tagId": "TEA-017",
       "bucket": 1,
       "device": "E-01",
       "grams": 1000,
       "kind": "tea"
     },
     {
-      "tagId": "TEA-014",
+      "tagId": "TEA-018",
       "bucket": 2,
       "device": "E-01",
       "grams": 1000,
       "kind": "tea"
     },
     {
-      "tagId": "TEA-015",
+      "tagId": "TEA-019",
       "bucket": 3,
       "device": "E-01",
       "grams": 1000,
       "kind": "tea"
-    },
-    {
-      "tagId": "WEIGH-007",
-      "bucket": 1,
-      "device": "M-01",
-      "grams": 500,
-      "kind": "weigh"
-    },
-    {
-      "tagId": "WEIGH-009",
-      "bucket": 2,
-      "device": "M-01",
-      "grams": 500,
-      "kind": "weigh"
     },
     {
       "tagId": "WEIGH-011",
+      "bucket": 1,
+      "device": "M-01",
+      "grams": 500,
+      "kind": "weigh"
+    },
+    {
+      "tagId": "WEIGH-013",
+      "bucket": 2,
+      "device": "M-01",
+      "grams": 500,
+      "kind": "weigh"
+    },
+    {
+      "tagId": "WEIGH-015",
       "bucket": 3,
       "device": "M-01",
       "grams": 500,
       "kind": "weigh"
     }
   ],
-  "sequence": 16,
-  "mistakes": 2,
+  "sequence": 20,
+  "mistakes": 0,
   "events": [
     {
       "id": 1,
       "type": "receive",
       "message": "已按物料、批次记录签收；签收成功不代表已经备料或投料。",
-      "time": "2026-10-25T18:52:50.953Z",
+      "time": "2026-10-26T03:16:26.690Z",
       "success": true
     },
     {
       "id": 2,
       "type": "advance",
-      "message": "进入整包备料，前面的记录已保留。",
-      "time": "2026-10-25T18:52:50.994Z",
+      "message": "进入原料脱包，前面的记录已保留。",
+      "time": "2026-10-26T03:16:26.948Z",
       "success": true
     },
     {
       "id": 3,
-      "type": "scan",
-      "message": "已选择 RAW-77，可用 77kg。",
-      "time": "2026-10-25T18:52:51.279Z",
+      "type": "unpack",
+      "message": "已去除 RAW-77 外包装，生成 UNPACK-001；来源与批次继承，总量不变。请打印贴标，再进入备料。",
+      "time": "2026-10-26T03:16:59.865Z",
       "success": true
     },
     {
       "id": 4,
-      "type": "package",
-      "message": "备料业务成功：完成 3 份任务，生成 3 张标签；请另行打印、贴标。",
-      "time": "2026-10-25T18:52:51.535Z",
+      "type": "print",
+      "message": "已打印原标签；来源余额与任务份数保持不变。",
+      "time": "2026-10-26T03:17:00.139Z",
       "success": true
     },
     {
       "id": 5,
-      "type": "print",
-      "message": "已打印原标签；来源余额与任务份数保持不变。",
-      "time": "2026-10-25T18:52:51.952Z",
+      "type": "attach",
+      "message": "标签 UNPACK-001 已与对应实物核对贴附。",
+      "time": "2026-10-26T03:17:00.414Z",
       "success": true
     },
     {
       "id": 6,
-      "type": "attach",
-      "message": "标签 OVERALL-001 已与对应实物核对贴附。",
-      "time": "2026-10-25T18:52:52.342Z",
+      "type": "unpack",
+      "message": "已去除 SMALL-RAW 外包装，生成 UNPACK-003；来源与批次继承，总量不变。请打印贴标，再进入备料。",
+      "time": "2026-10-26T03:17:00.685Z",
       "success": true
     },
     {
       "id": 7,
-      "type": "attach",
-      "message": "标签 OVERALL-002 已与对应实物核对贴附。",
-      "time": "2026-10-25T18:52:52.693Z",
+      "type": "print",
+      "message": "已打印原标签；来源余额与任务份数保持不变。",
+      "time": "2026-10-26T03:17:00.960Z",
       "success": true
     },
     {
       "id": 8,
       "type": "attach",
-      "message": "标签 OVERALL-003 已与对应实物核对贴附。",
-      "time": "2026-10-25T18:52:53.043Z",
+      "message": "标签 UNPACK-003 已与对应实物核对贴附。",
+      "time": "2026-10-26T03:17:01.226Z",
       "success": true
     },
     {
       "id": 9,
-      "type": "advance",
-      "message": "进入脱包与小料称量，前面的记录已保留。",
-      "time": "2026-10-25T18:52:53.243Z",
+      "type": "unpack",
+      "message": "已去除 TEA-RAW 外包装，生成 UNPACK-005；来源与批次继承，总量不变。请打印贴标，再进入备料。",
+      "time": "2026-10-26T03:17:01.490Z",
       "success": true
     },
     {
       "id": 10,
-      "type": "unpack",
-      "message": "脱包成功：物料与批次继承到脱包码，原料总量不增加。",
-      "time": "2026-10-25T18:52:53.352Z",
+      "type": "print",
+      "message": "已打印原标签；来源余额与任务份数保持不变。",
+      "time": "2026-10-26T03:17:01.765Z",
       "success": true
     },
     {
       "id": 11,
-      "type": "print",
-      "message": "已打印原标签；来源余额与任务份数保持不变。",
-      "time": "2026-10-25T18:52:53.857Z",
+      "type": "attach",
+      "message": "标签 UNPACK-005 已与对应实物核对贴附。",
+      "time": "2026-10-26T03:17:02.038Z",
       "success": true
     },
     {
       "id": 12,
-      "type": "attach",
-      "message": "标签 UNPACK-005 已与对应实物核对贴附。",
-      "time": "2026-10-25T18:52:54.293Z",
+      "type": "advance",
+      "message": "进入原料备料，前面的记录已保留。",
+      "time": "2026-10-26T03:17:02.310Z",
       "success": true
     },
     {
       "id": 13,
-      "type": "tare",
-      "message": "空容器去皮完成：皮重 0.10kg。",
-      "time": "2026-10-25T18:52:54.702Z",
+      "type": "scan",
+      "message": "已选择 UNPACK-001，可用 77kg。",
+      "time": "2026-10-26T03:17:02.577Z",
       "success": true
     },
     {
       "id": 14,
-      "type": "gross",
-      "message": "模拟秤示数已改变，稳定计时重新开始。",
-      "time": "2026-10-25T18:52:55.009Z",
+      "type": "package",
+      "message": "备料业务成功：完成 3 份任务，生成 3 张标签；请另行打印、贴标。",
+      "time": "2026-10-26T03:17:02.848Z",
       "success": true
     },
     {
       "id": 15,
-      "type": "weigh",
-      "message": "第 1 桶称量完成，净重 0.5kg；请打印并贴标。",
-      "time": "2026-10-25T18:53:12.081Z",
+      "type": "print",
+      "message": "模拟缺纸：业务记录已保存，纸张未输出。请查明细后补打，勿重复完成任务。",
+      "time": "2026-10-26T03:17:03.119Z",
       "success": true
     },
     {
       "id": 16,
       "type": "print",
-      "message": "已打印原标签；来源余额与任务份数保持不变。",
-      "time": "2026-10-25T18:53:12.505Z",
+      "message": "已补打原标签；来源余额与任务份数保持不变。",
+      "time": "2026-10-26T03:17:03.395Z",
       "success": true
     },
     {
       "id": 17,
       "type": "attach",
-      "message": "标签 WEIGH-007 已与对应实物核对贴附。",
-      "time": "2026-10-25T18:53:12.830Z",
+      "message": "标签 OVERALL-007 已与对应实物核对贴附。",
+      "time": "2026-10-26T03:17:03.668Z",
       "success": true
     },
     {
       "id": 18,
-      "type": "tare",
-      "message": "空容器去皮完成：皮重 0.10kg。",
-      "time": "2026-10-25T18:53:13.188Z",
+      "type": "attach",
+      "message": "标签 OVERALL-008 已与对应实物核对贴附。",
+      "time": "2026-10-26T03:17:03.939Z",
       "success": true
     },
     {
       "id": 19,
-      "type": "gross",
-      "message": "模拟秤示数已改变，稳定计时重新开始。",
-      "time": "2026-10-25T18:53:13.408Z",
+      "type": "attach",
+      "message": "标签 OVERALL-009 已与对应实物核对贴附。",
+      "time": "2026-10-26T03:17:04.210Z",
       "success": true
     },
     {
       "id": 20,
-      "type": "weigh",
-      "message": "第 2 桶称量完成，净重 0.5kg；请打印并贴标。",
-      "time": "2026-10-25T18:53:14.563Z",
+      "type": "tare",
+      "message": "空容器去皮完成：皮重 0.10kg。",
+      "time": "2026-10-26T03:17:25.375Z",
       "success": true
     },
     {
       "id": 21,
-      "type": "print",
-      "message": "已打印原标签；来源余额与任务份数保持不变。",
-      "time": "2026-10-25T18:53:14.987Z",
+      "type": "gross",
+      "message": "模拟秤示数已改变，稳定计时重新开始。",
+      "time": "2026-10-26T03:17:25.693Z",
       "success": true
     },
     {
       "id": 22,
-      "type": "attach",
-      "message": "标签 WEIGH-009 已与对应实物核对贴附。",
-      "time": "2026-10-25T18:53:15.253Z",
+      "type": "weigh",
+      "message": "第 1 桶称量完成，净重 0.5kg；请打印并贴标。",
+      "time": "2026-10-26T03:17:26.882Z",
       "success": true
     },
     {
       "id": 23,
-      "type": "tare",
-      "message": "空容器去皮完成：皮重 0.10kg。",
-      "time": "2026-10-25T18:53:15.521Z",
+      "type": "print",
+      "message": "已打印原标签；来源余额与任务份数保持不变。",
+      "time": "2026-10-26T03:17:27.151Z",
       "success": true
     },
     {
       "id": 24,
-      "type": "gross",
-      "message": "模拟秤示数已改变，稳定计时重新开始。",
-      "time": "2026-10-25T18:53:15.796Z",
+      "type": "attach",
+      "message": "标签 WEIGH-011 已与对应实物核对贴附。",
+      "time": "2026-10-26T03:17:27.427Z",
       "success": true
     },
     {
       "id": 25,
-      "type": "weigh",
-      "message": "第 3 桶称量完成，净重 0.5kg；请打印并贴标。",
-      "time": "2026-10-25T18:53:16.963Z",
+      "type": "tare",
+      "message": "空容器去皮完成：皮重 0.10kg。",
+      "time": "2026-10-26T03:17:27.696Z",
       "success": true
     },
     {
       "id": 26,
-      "type": "print",
-      "message": "已打印原标签；来源余额与任务份数保持不变。",
-      "time": "2026-10-25T18:53:17.388Z",
+      "type": "gross",
+      "message": "模拟秤示数已改变，稳定计时重新开始。",
+      "time": "2026-10-26T03:17:27.981Z",
       "success": true
     },
     {
       "id": 27,
-      "type": "attach",
-      "message": "标签 WEIGH-011 已与对应实物核对贴附。",
-      "time": "2026-10-25T18:53:17.771Z",
+      "type": "weigh",
+      "message": "第 2 桶称量完成，净重 0.5kg；请打印并贴标。",
+      "time": "2026-10-26T03:17:29.103Z",
       "success": true
     },
     {
       "id": 28,
-      "type": "advance",
-      "message": "进入整桶汇集与投料，前面的记录已保留。",
-      "time": "2026-10-25T18:53:18.172Z",
+      "type": "print",
+      "message": "已打印原标签；来源余额与任务份数保持不变。",
+      "time": "2026-10-26T03:17:29.386Z",
       "success": true
     },
     {
       "id": 29,
-      "type": "prepare-tea",
-      "message": "三份茶叶教学物料已准备，每份 1kg；此数量用于路线演示，不是产品配方。",
-      "time": "2026-10-25T18:53:18.233Z",
+      "type": "attach",
+      "message": "标签 WEIGH-013 已与对应实物核对贴附。",
+      "time": "2026-10-26T03:17:29.655Z",
       "success": true
     },
     {
       "id": 30,
-      "type": "print",
-      "message": "已打印原标签；来源余额与任务份数保持不变。",
-      "time": "2026-10-25T18:53:18.656Z",
+      "type": "tare",
+      "message": "空容器去皮完成：皮重 0.10kg。",
+      "time": "2026-10-26T03:17:29.931Z",
       "success": true
     },
     {
       "id": 31,
-      "type": "attach",
-      "message": "标签 TEA-013 已与对应实物核对贴附。",
-      "time": "2026-10-25T18:53:19.038Z",
+      "type": "gross",
+      "message": "模拟秤示数已改变，稳定计时重新开始。",
+      "time": "2026-10-26T03:17:30.201Z",
       "success": true
     },
     {
       "id": 32,
-      "type": "attach",
-      "message": "标签 TEA-014 已与对应实物核对贴附。",
-      "time": "2026-10-25T18:53:19.405Z",
+      "type": "weigh",
+      "message": "第 3 桶称量完成，净重 0.5kg；请打印并贴标。",
+      "time": "2026-10-26T03:17:31.306Z",
       "success": true
     },
     {
       "id": 33,
-      "type": "attach",
-      "message": "标签 TEA-015 已与对应实物核对贴附。",
-      "time": "2026-10-25T18:53:19.772Z",
+      "type": "print",
+      "message": "已打印原标签；来源余额与任务份数保持不变。",
+      "time": "2026-10-26T03:17:31.582Z",
       "success": true
     },
     {
       "id": 34,
-      "type": "collect",
-      "message": "任务桶号不一致，禁止归入其他桶号的料车。",
-      "time": "2026-10-25T18:53:29.107Z",
-      "success": false
+      "type": "attach",
+      "message": "标签 WEIGH-015 已与对应实物核对贴附。",
+      "time": "2026-10-26T03:17:31.845Z",
+      "success": true
     },
     {
       "id": 35,
-      "type": "collect",
-      "message": "已归集第 1 桶：赤藓糖醇 25kg。",
-      "time": "2026-10-25T18:53:29.215Z",
+      "type": "prepare-tea",
+      "message": "三份茶叶教学物料已准备，每份 1kg；此数量用于路线演示，不是产品配方。",
+      "time": "2026-10-26T03:17:32.114Z",
       "success": true
     },
     {
       "id": 36,
-      "type": "collect",
-      "message": "已归集第 2 桶：赤藓糖醇 25kg。",
-      "time": "2026-10-25T18:53:29.498Z",
+      "type": "print",
+      "message": "已打印原标签；来源余额与任务份数保持不变。",
+      "time": "2026-10-26T03:17:32.384Z",
       "success": true
     },
     {
       "id": 37,
-      "type": "collect",
-      "message": "已归集第 3 桶：赤藓糖醇 25kg。",
-      "time": "2026-10-25T18:53:29.782Z",
+      "type": "attach",
+      "message": "标签 TEA-017 已与对应实物核对贴附。",
+      "time": "2026-10-26T03:17:32.656Z",
       "success": true
     },
     {
       "id": 38,
-      "type": "collect",
-      "message": "已归集第 1 桶：小料 A（教学） 0.5kg。",
-      "time": "2026-10-25T18:53:30.064Z",
+      "type": "attach",
+      "message": "标签 TEA-018 已与对应实物核对贴附。",
+      "time": "2026-10-26T03:17:32.931Z",
       "success": true
     },
     {
       "id": 39,
-      "type": "collect",
-      "message": "已归集第 2 桶：小料 A（教学） 0.5kg。",
-      "time": "2026-10-25T18:53:30.348Z",
+      "type": "attach",
+      "message": "标签 TEA-019 已与对应实物核对贴附。",
+      "time": "2026-10-26T03:17:33.202Z",
       "success": true
     },
     {
       "id": 40,
-      "type": "collect",
-      "message": "已归集第 3 桶：小料 A（教学） 0.5kg。",
-      "time": "2026-10-25T18:53:30.631Z",
+      "type": "advance",
+      "message": "进入汇集与前处理投料，前面的记录已保留。",
+      "time": "2026-10-26T03:17:33.476Z",
       "success": true
     },
     {
       "id": 41,
       "type": "collect",
-      "message": "已归集第 1 桶：茶叶（教学） 1kg。",
-      "time": "2026-10-25T18:53:30.913Z",
+      "message": "已归集第 1 桶：赤藓糖醇 25kg。",
+      "time": "2026-10-26T03:19:25.451Z",
       "success": true
     },
     {
       "id": 42,
       "type": "collect",
-      "message": "已归集第 2 桶：茶叶（教学） 1kg。",
-      "time": "2026-10-25T18:53:31.197Z",
+      "message": "已归集第 2 桶：赤藓糖醇 25kg。",
+      "time": "2026-10-26T03:19:25.679Z",
       "success": true
     },
     {
       "id": 43,
       "type": "collect",
-      "message": "已归集第 3 桶：茶叶（教学） 1kg。",
-      "time": "2026-10-25T18:53:31.480Z",
+      "message": "已归集第 3 桶：赤藓糖醇 25kg。",
+      "time": "2026-10-26T03:19:25.954Z",
       "success": true
     },
     {
       "id": 44,
-      "type": "feed",
-      "message": "设备不匹配：该物料应投到 E-01。",
-      "time": "2026-10-25T18:53:31.756Z",
-      "success": false
+      "type": "collect",
+      "message": "已归集第 1 桶：小料 A（教学） 0.5kg。",
+      "time": "2026-10-26T03:19:26.240Z",
+      "success": true
     },
     {
       "id": 45,
-      "type": "feed",
-      "message": "赤藓糖醇 25kg 已投到 D-01；中间料沿对应管路汇入调配桶（教学动画）。",
-      "time": "2026-10-25T18:53:37.417Z",
+      "type": "collect",
+      "message": "已归集第 2 桶：小料 A（教学） 0.5kg。",
+      "time": "2026-10-26T03:19:26.517Z",
       "success": true
     },
     {
       "id": 46,
-      "type": "feed",
-      "message": "赤藓糖醇 25kg 已投到 D-01；中间料沿对应管路汇入调配桶（教学动画）。",
-      "time": "2026-10-25T18:53:37.700Z",
+      "type": "collect",
+      "message": "已归集第 3 桶：小料 A（教学） 0.5kg。",
+      "time": "2026-10-26T03:19:26.796Z",
       "success": true
     },
     {
       "id": 47,
-      "type": "feed",
-      "message": "赤藓糖醇 25kg 已投到 D-01；中间料沿对应管路汇入调配桶（教学动画）。",
-      "time": "2026-10-25T18:53:37.983Z",
+      "type": "collect",
+      "message": "已归集第 1 桶：茶叶（教学） 1kg。",
+      "time": "2026-10-26T03:19:27.069Z",
       "success": true
     },
     {
       "id": 48,
-      "type": "feed",
-      "message": "茶叶（教学） 1kg 已投到 E-01；中间料沿对应管路汇入调配桶（教学动画）。",
-      "time": "2026-10-25T18:53:38.287Z",
+      "type": "collect",
+      "message": "已归集第 2 桶：茶叶（教学） 1kg。",
+      "time": "2026-10-26T03:19:27.352Z",
       "success": true
     },
     {
       "id": 49,
-      "type": "feed",
-      "message": "茶叶（教学） 1kg 已投到 E-01；中间料沿对应管路汇入调配桶（教学动画）。",
-      "time": "2026-10-25T18:53:38.559Z",
+      "type": "collect",
+      "message": "已归集第 3 桶：茶叶（教学） 1kg。",
+      "time": "2026-10-26T03:19:27.636Z",
       "success": true
     },
     {
       "id": 50,
       "type": "feed",
-      "message": "茶叶（教学） 1kg 已投到 E-01；中间料沿对应管路汇入调配桶（教学动画）。",
-      "time": "2026-10-25T18:53:38.842Z",
+      "message": "赤藓糖醇 25kg 已投到 D-01；中间料沿对应管路汇入调配桶（教学动画）。",
+      "time": "2026-10-26T03:19:27.917Z",
       "success": true
     },
     {
       "id": 51,
       "type": "feed",
-      "message": "小料 A（教学） 0.5kg 已投到 M-01；调配教学投料完成。",
-      "time": "2026-10-25T18:53:39.126Z",
+      "message": "赤藓糖醇 25kg 已投到 D-01；中间料沿对应管路汇入调配桶（教学动画）。",
+      "time": "2026-10-26T03:19:28.206Z",
       "success": true
     },
     {
       "id": 52,
       "type": "feed",
-      "message": "小料 A（教学） 0.5kg 已投到 M-01；调配教学投料完成。",
-      "time": "2026-10-25T18:53:39.408Z",
+      "message": "赤藓糖醇 25kg 已投到 D-01；中间料沿对应管路汇入调配桶（教学动画）。",
+      "time": "2026-10-26T03:19:28.489Z",
       "success": true
     },
     {
       "id": 53,
       "type": "feed",
-      "message": "小料 A（教学） 0.5kg 已投到 M-01；调配教学投料完成。",
-      "time": "2026-10-25T18:53:39.693Z",
+      "message": "茶叶（教学） 1kg 已投到 E-01；中间料沿对应管路汇入调配桶（教学动画）。",
+      "time": "2026-10-26T03:19:28.768Z",
       "success": true
     },
     {
       "id": 54,
+      "type": "feed",
+      "message": "茶叶（教学） 1kg 已投到 E-01；中间料沿对应管路汇入调配桶（教学动画）。",
+      "time": "2026-10-26T03:19:29.056Z",
+      "success": true
+    },
+    {
+      "id": 55,
+      "type": "feed",
+      "message": "茶叶（教学） 1kg 已投到 E-01；中间料沿对应管路汇入调配桶（教学动画）。",
+      "time": "2026-10-26T03:19:29.345Z",
+      "success": true
+    },
+    {
+      "id": 56,
+      "type": "feed",
+      "message": "小料 A（教学） 0.5kg 已投到 M-01；调配教学投料完成。",
+      "time": "2026-10-26T03:19:29.628Z",
+      "success": true
+    },
+    {
+      "id": 57,
+      "type": "feed",
+      "message": "小料 A（教学） 0.5kg 已投到 M-01；调配教学投料完成。",
+      "time": "2026-10-26T03:19:29.912Z",
+      "success": true
+    },
+    {
+      "id": 58,
+      "type": "feed",
+      "message": "小料 A（教学） 0.5kg 已投到 M-01；调配教学投料完成。",
+      "time": "2026-10-26T03:19:30.197Z",
+      "success": true
+    },
+    {
+      "id": 59,
       "type": "advance",
       "message": "演练完成，任务、标签与数量账已核对。",
-      "time": "2026-10-25T18:53:39.959Z",
+      "time": "2026-10-26T03:19:30.471Z",
       "success": true
     }
   ],

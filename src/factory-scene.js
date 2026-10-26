@@ -126,14 +126,14 @@ export async function createFactoryScene({onSelect,onTag,onProgress,onDropTag}) 
     if(DEVICES[tag.location]){const d=DEVICES[tag.location];return d?[d.point[0],1.2,d.point[2]]:null;}
     if(tag.location.startsWith('cart-'))return [-5.05+(b-1)*1.9,.36+(tag.kind==='weigh'?.72:0),tag.kind==='tea'?1.05:.15];
     if(tag.kind==='raw')return {'RAW-20':[-3.7,.4,-6.5],'RAW-77':[-2.4,.4,-6.5],'RAW-150':[-3,.4,-6.5],'SMALL-RAW':[-3.65,.4,-5.25],'TEA-RAW':[-2.4,.4,-5.25]}[tag.id];
-    if(tag.kind==='unpack')return [3.1,1.1,-5.95];
+    if(tag.kind==='unpack'){const slot={BULK:tag.parentIds[0]==='RAW-20'?0:1,SMALL:2,TEA:3}[tag.material];return [1.3+slot*1.05,.15,-5.15];}
     if(tag.kind==='overall')return [7.25+(b-1)*1.55,.15,-5.25+(s.mode==='bag'?(Number(tag.id.slice(-3))%2)*.75:0)];
     if(tag.kind==='tea')return [7.25+(b-1)*1.55,.15,-4.2];
     return [-10.5+(b-1)*1.45,.15,2.2];
   }
   function makeActor(tag) {
     const g=new THREE.Group();g.userData.tagId=tag.id;
-    const shape=model(tag.kind==='weigh'?'bucket':'sack',tag.kind==='weigh'?.5:tag.kind==='tea'?.58:.85);
+    const shape=model(['weigh','unpack'].includes(tag.kind)?'bucket':'sack',tag.kind==='weigh'?.5:tag.kind==='tea'?.58:.85);
     g.add(shape);scene.add(g);clickable.push(g);
     const label=sign(g,'',[0,tag.kind==='weigh'?.8:1.1,0],1.6);
     g.userData.label=label;actors.set(tag.id,g);return g;

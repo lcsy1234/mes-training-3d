@@ -26,10 +26,11 @@ function render(){
   $('#view-title').textContent=zone==='overview'?'工厂全景':ZONES[zone].name;
   $('#zone-nav').innerHTML=Object.entries(ZONES).map(([id,z])=>`<button data-zone="${id}" class="${id===zone?'active':''}" aria-pressed="${id===zone}"><span>${z.code}</span>${z.name}</button>`).join('');
   $('#lesson-progress').hidden=mode==='overview';
-  $('#lesson-progress').innerHTML=CHAPTERS.slice(0,state.mode==='bag'?2:4).map((c,i)=>`<button data-chapter="${i}" class="${i<state.chapter||state.finished?'done':i===state.chapter?'current':''}" ${i===state.chapter?'aria-current="step"':''}><span>${i<state.chapter||state.finished?'✓ 已完成':'CHAPTER '+String(i+1).padStart(2,'0')}</span>${c.title}</button>`).join('');
+  $('#lesson-progress').innerHTML=CHAPTERS.slice(0,state.mode==='bag'?3:4).map((c,i)=>`<button data-chapter="${i}" class="${i<state.chapter||state.finished?'done':i===state.chapter?'current':''}" ${i===state.chapter?'aria-current="step"':''}><span>${i<state.chapter||state.finished?'✓ 已完成':'CHAPTER '+String(i+1).padStart(2,'0')}</span>${c.title}</button>`).join('');
   renderPanel();
   const l=ledger(state),completed=state.packageTasks.filter(t=>t.done).length;
-  $('#physical-summary').textContent=state.chapter===0?`到货原料等待交接；已签收 ${kg(l.receivedGrams)}kg。`:state.chapter===1?`来源余量：${state.mode==='bag'?'RAW-150 '+kg(state.tags['RAW-150'].remainingGrams):'RAW-20 '+kg(state.tags['RAW-20'].remainingGrams)+' / RAW-77 '+kg(state.tags['RAW-77'].remainingGrams)}kg。`:state.chapter===2?'整包料与小料沿不同支路准备；小料来源经脱包码追溯。':`三台料车按任务桶号交接；已记录 ${state.feeds.length} 次独立投料。`;
+  const sourceSummary=id=>{const t=state.tags[state.unpackedSources[id]]||state.tags[id];return `${id}${t.id!==id?' → '+t.id:''} ${kg(t.remainingGrams)}kg`;};
+  $('#physical-summary').textContent=state.chapter===0?`到货原料等待交接；已签收 ${kg(l.receivedGrams)}kg。`:state.chapter===1?'签收后先去外包装；原码余额转到脱包码，不增加物料，也不记作投料。':state.chapter===2?`备料来源余量：${state.mode==='bag'?sourceSummary('RAW-150'):sourceSummary('RAW-20')+' / '+sourceSummary('RAW-77')}。`:`备料已完成，按任务桶号汇集；已记录 ${state.feeds.length} 次独立投料。`;
   $('#task-summary').textContent=state.finished?'本轮演练完成，业务、标签与数量账已核对。':`整包 ${completed}/3 份 · 称量 ${state.smallTasks.filter(t=>t.done).length}/${state.mode==='bag'?0:3} 份 · 当前${CHAPTERS[state.chapter].title}。`;
   $('#quantity-summary').textContent=`签收 ${kg(l.receivedGrams)} − 已投 ${kg(l.fedGrams)} ＝ 余量 ${kg(l.remainingGrams)}kg · 差额 ${kg(l.differenceGrams)}kg`;
   $('#print-jobs').innerHTML=printDesk(state);$('#tag-cards').innerHTML=tagDesk(state,$('#all-tags').checked?'all':'current');
@@ -51,7 +52,7 @@ function dispatch(type,payload={}){
   syncValues();const result=act(state,type,payload,Date.now());state=result.state;sessions[state.mode]=state;
   error=result.ok?'':result.message;
   if(result.ok){
-    if(type==='advance'){panel='task';zone=CHAPTERS[Math.min(state.chapter,3)].zone;scene.select(zone);}
+    if(type==='advance'){if(state.chapter===2)values.sourceId=state.unpackedSources[state.mode==='bag'?'RAW-150':'RAW-77'];panel='task';zone=CHAPTERS[Math.min(state.chapter,3)].zone;scene.select(zone);}
     if(type==='weigh'){const pending=state.smallTasks.find(t=>!t.done);if(pending)values.workBucket=pending.bucket;}
     if(type==='feed'){zone='process';scene.select(zone);}
     if(type==='prepare-tea'){const tag=Object.values(state.tags).find(t=>t.kind==='tea');values.tagId=tag?.id||values.tagId;}
@@ -80,7 +81,7 @@ function sourceBalances(){
 }
 function reset(){state=createFactoryState(state.mode);sessions[state.mode]=state;values=defaults(state.mode);error='';zone=mode==='training'?'warehouse':'control';scene?.update(state);scene?.select(zone,false);scene?.reset();panel=mode==='training'?'task':'station';render();notify('本轮演练已重置，来源余额与任务状态恢复初始值。');}
 function exportReport(){
-  const data={title:'MES 工厂前处理实训记录',version:2,simulated:true,exportedAt:new Date().toISOString(),ledger:ledger(state),...state};
+  const data={title:'MES 工厂前处理实训记录',version:3,simulated:true,exportedAt:new Date().toISOString(),ledger:ledger(state),...state};
   const url=URL.createObjectURL(new Blob([JSON.stringify(data,null,2)],{type:'application/json'}));const link=document.createElement('a');link.href=url;link.download=`MES-工厂实训-${state.mode}.json`;link.click();setTimeout(()=>URL.revokeObjectURL(url),1000);
 }
 document.addEventListener('change',e=>{
@@ -102,7 +103,7 @@ document.addEventListener('click',e=>{
     receive:()=>dispatch('receive',{campaign:values.campaign,batch:values.batch}),scan:()=>dispatch('scan',{sourceId:values.sourceId}),
     'remove-source':()=>dispatch('remove-source',{sourceId:b.dataset.sourceId}),
     package:()=>dispatch('package',{count:Number(values.count),labelType:values.labelType}),advance:()=>dispatch('advance'),
-    unpack:()=>dispatch('unpack',{sourceId:'SMALL-RAW'}),
+    unpack:()=>dispatch('unpack',{sourceId:b.dataset.sourceId||'SMALL-RAW'}),
     'apply-gross':()=>dispatch('gross',{grams:Math.round(Number($('#gross').value)*1000)}),gross:()=>{},add:()=>dispatch('gross',{grams:state.scale.grossGrams+100}),'fine-add':()=>dispatch('gross',{grams:state.scale.grossGrams+10}),minus:()=>dispatch('gross',{grams:state.scale.grossGrams-10}),
     empty:()=>dispatch('gross',{grams:100}),tare:()=>dispatch('tare'),weigh:()=>dispatch('weigh',{bucket:Number(values.workBucket)}),
     print:()=>dispatch('print',{jobId:b.dataset.jobId}),'paper-fail':()=>dispatch('print',{jobId:b.dataset.jobId,fail:true}),
