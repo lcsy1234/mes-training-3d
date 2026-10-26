@@ -1,5 +1,5 @@
 import { MATERIALS, kg } from './factory-state.js';
-import { palletBalances, warehouseLedger, receivingReady } from './warehouse-state.js';
+import { palletBalances, warehouseLedger, receivingProgress, receivingReady } from './warehouse-state.js';
 const warehouseName=type=>type==='wms'?'实际仓（WMS）':'虚拟仓（厂内暂存）';
 const selectOption=(value,text,current)=>`<option value="${value}" ${value===current?'selected':''}>${text}</option>`;
 export function palletInfo(s,id){
@@ -16,6 +16,9 @@ export function warehousePanel(s,v,includeAdvance=true){
   const unprocessed=s.roots.filter(id=>s.tags[id].material==='SMALL'&&s.tags[id].received&&s.tags[id].remainingGrams>0);
   if(s.chapter===1&&unprocessed.length)html+=`<h3>新增散称小料待处理</h3><p class="form-hint">补领先签收；只有配置为散称且需要脱包的物料生成新脱包标签。整包物料直接进入备料。</p>${unprocessed.map(id=>`<button class="action-secondary" data-action="unpack" data-source-id="${id}">散称前脱包 ${id} · ${kg(s.tags[id].remainingGrams)}kg</button>`).join('')}`;
   html+=`<div class="learning-note">仓库未领 ${kg(w.warehouseGrams)}kg · 待签收 ${kg(w.inTransitGrams)}kg · 已签收 ${kg(w.signedGrams)}kg<br>仓库数量差额 ${kg(w.differenceGrams)}kg。扫码、发货、签收与备料分别记账。</div>`;
-  if(includeAdvance&&s.chapter===0)html+=`<button data-action="advance" class="action-primary" ${receivingReady(s)?'':'disabled'}>进入备料区 →</button><p class="form-hint">${receivingReady(s)?'本课所需物料已有签收来源，可继续。未备够时可在备料阶段回本模块补领。':'请为本课各物料至少领取并签收一份来源。'}</p>`;
+  if(includeAdvance&&s.chapter===0){
+    const progress=receivingProgress(s),missing=progress.filter(item=>!item.ready),ready=receivingReady(s);
+    html+=`<h3>进入备料区前的签收条件</h3><div class="receiving-checklist">${progress.map(item=>`<div class="${item.ready?'ready':'missing'}"><span>${item.ready?'✓':'○'} ${MATERIALS[item.material]}</span><strong>${item.ready?'已签收 '+kg(item.signedGrams)+'kg':'尚无已签收来源'}</strong><small>本课任务量 ${kg(item.requiredGrams)}kg</small></div>`).join('')}</div><button data-action="advance" class="action-primary" ${ready?'':'disabled'}>${ready?'进入备料区 →':`还缺 ${missing.length} 种物料`}</button><p class="form-hint">${ready?'三类物料均已有签收来源，可以继续；数量未备够时仍可在备料阶段回来补领。':`自动签收已成功。还需领取并自动签收：${missing.map(item=>`${MATERIALS[item.material]}（本课${kg(item.requiredGrams)}kg）`).join('、')}。`}</p>`;
+  }
   return html;
 }

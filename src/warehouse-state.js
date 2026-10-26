@@ -65,7 +65,13 @@ export function registerPreparation(s,allocations){
   }
 }
 export function availableUnpacked(s,material){return Object.values(s.tags).filter(t=>t.kind==='unpack'&&t.material===material&&t.printed&&t.attached&&t.remainingGrams>0);}
-export function receivingReady(s){
+export function receivingProgress(s){
   const needs=s.mode==='bag'?{BULK:150000}:{BULK:75000,SMALL:1500,TEA:3000};
-  return Object.keys(needs).every(material=>Object.values(s.pallets).some(p=>p.material===material&&p.signedGrams>0));
+  return Object.entries(needs).map(([material,requiredGrams])=>{
+    const signedGrams=Object.values(s.pallets).filter(p=>p.material===material).reduce((n,p)=>n+p.signedGrams,0);
+    return {material,requiredGrams,signedGrams,ready:signedGrams>0};
+  });
+}
+export function receivingReady(s){
+  return receivingProgress(s).every(item=>item.ready);
 }

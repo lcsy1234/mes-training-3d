@@ -1,4 +1,4 @@
-# MES 工厂实训室 v0.4.0
+# MES 工厂实训室 v0.4.1
 
 [在线体验](https://lcsy1234.github.io/mes-training-3d/) · [基础演示](https://lcsy1234.github.io/mes-training-3d/basic.html)
 

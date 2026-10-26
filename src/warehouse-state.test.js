@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { createFactoryState, act, ledger } from './factory-state.js';
-import { palletBalances, warehouseLedger } from './warehouse-state.js';
+import { palletBalances, warehouseLedger, receivingProgress, receivingReady } from './warehouse-state.js';
 const ok=(s,type,p={})=>{const r=act(s,type,p);assert.equal(r.ok,true,r.message);return r.state;};
 const issue=(s,palletId,grams,extra={})=>ok(s,'issue',{palletId,grams,campaign:'DEMO-P01',batch:'DEMO-A',...extra});
 const receive=s=>ok(s,'receive',{campaign:'DEMO-P01',batch:'DEMO-A'});
@@ -41,6 +41,16 @@ test('virtual warehouse withdrawals automatically sign and always keep an issue 
   assert.equal(palletBalances(s,'TEMP-P02').warehouseGrams,27000);
   assert.equal(palletBalances(s,'WMS-P02').warehouseGrams,77000);
   assert.equal(warehouseLedger(s).differenceGrams,0);
+});
+test('preparation entry explains which required material sources are still missing',()=>{
+  let s=issue(createFactoryState(),'TEMP-P02',75000);
+  const progress=receivingProgress(s);
+  assert.deepEqual(progress.map(x=>[x.material,x.signedGrams,x.ready]),[
+    ['BULK',75000,true],['SMALL',0,false],['TEA',0,false],
+  ]);
+  assert.equal(receivingReady(s),false);
+  s=issue(s,'TEMP-P03',1500);s=issue(s,'TEMP-P04',3000);
+  assert.equal(receivingReady(s),true);
 });
 test('invalid or repeated issuance cannot inflate stock or receipt quota',()=>{
   let s=createFactoryState();
