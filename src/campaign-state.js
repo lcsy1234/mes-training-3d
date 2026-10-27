@@ -10,7 +10,8 @@ export function validateConfig(c){
     check(['whole','weigh','control'].includes(l.route)&&['production','qa'].includes(l.owner),'明细分流无效。');
     check(Number.isSafeInteger(l.grams)&&l.grams>0&&Number.isSafeInteger(l.tolerance)&&l.tolerance>=0,'明细重量必须为整数克。');
     check(c.units.some(u=>u.kind===l.unitKind),'明细缺少对应任务单元。');
-    check(l.owner!=='qa'||l.route==='weigh','品保配料必须走PAD称量。');
+    check(l.owner!=='qa'||l.route==='weigh'||l.route==='control','品保手工配料必须走PAD称量。');
+    if(l.minGrams!==undefined||l.maxGrams!==undefined)check(Number.isSafeInteger(l.minGrams)&&Number.isSafeInteger(l.maxGrams)&&l.minGrams<=l.grams&&l.maxGrams>=l.grams,'明细重量上下限无效。');
   }
   return c;
 }
@@ -74,11 +75,11 @@ export function campaignAct(state,type,p={},now=Date.now()){
         let grams=task.grams;
         if(task.route==='weigh'){
           check(task.scale?.pallet===pallet.id&&task.scale.tare!==null,'散称任务尚未去皮。');
-          grams=task.scale.gross-task.scale.tare;check(Math.abs(grams-task.grams)<=task.tolerance,'净重不在任务允许范围内。');check(now-task.scale.changedAt>=1000,'秤尚未稳定1秒。');
+          grams=task.scale.gross-task.scale.tare;check(grams>=(task.minGrams??task.grams-task.tolerance)&&grams<=(task.maxGrams??task.grams+task.tolerance),'净重不在任务允许范围内。');check(now-task.scale.changedAt>=1000,'秤尚未稳定1秒。');
         }
         check(grams<=pallet.available,'备料不能超过当前托盘的已签收可用量。');
         pallet.available-=grams;pallet.prepared+=grams;
-        const label={id:nextId(s,'LABEL'),task:task.id,unit:task.unit,owner:task.owner,material:pallet.material,batch:pallet.batch,pallet:pallet.id,campaign:s.config.campaign,grams,parent:task.scale?.unpackCode||pallet.id,printed:false,attached:false,attempts:0,fed:false};
+        const label={id:nextId(s,'LABEL'),task:task.id,unit:task.unit,owner:task.owner,material:pallet.material,batch:pallet.batch,pallet:pallet.id,campaign:s.config.campaign,grams,parent:task.scale?.unpackCode||pallet.id,sourceCode:task.sourceCode,sourceRowId:task.sourceRowId,sourceDetailId:task.sourceDetailId,printed:false,attached:false,attempts:0,fed:false};
         s.tags.push(label);task.tagId=label.id;message='备料业务已完成；请打印并核对贴标。';
       }
     }else if(type==='print'){

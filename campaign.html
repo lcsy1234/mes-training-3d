@@ -2,6 +2,8 @@
 <html lang="zh-CN"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>MES · 配料指示书产程实训</title></head>
 <body><header class="app-header"><a class="brand" href="./">MES 工厂实训室</a><nav class="mode-nav"><a href="./">返回工厂全景</a><button id="export">导出记录</button><button id="reset">重新演练</button></nav></header>
 <main><section class="page-intro"><div><div class="eyebrow">CAMPAIGN TRAINING · 本地配料配置</div><h1 id="campaign-title">配料指示书实训</h1><p id="campaign-meta">正在读取本地场景…</p></div></section>
+<!-- 该配料方案为自定义，不可实际使用。 -->
+<p class="training-disclaimer" role="note"><strong>该配料方案为自定义，不可实际使用</strong></p>
 <section id="config-info" class="learning-note"></section><label class="field">载入本机场景配置（JSON）<input id="config-file" type="file" accept="application/json,.json"></label>
 <button id="open-issue-card" class="action-primary" style="max-width:300px;margin:0 0 18px">打开领料指示卡 · 查看本产程用量</button>
 <section class="factory-workspace"><div class="scene-column"><div class="scene-toolbar"><span id="view-title">教学工厂全景</span><div class="view-tools"><button data-zone="overview">全景</button><button data-zone="warehouse">仓库与签收</button><button data-zone="package">整包PDA</button><button data-zone="weigh">散称PAD</button><button data-zone="process">工艺投料</button></div></div><div class="factory-canvas-wrap"><div id="factory-scene" role="img" aria-label="产程实训三维工厂"></div><div id="world-labels"></div><div class="scene-badge">实物容器 ≠ 生产桶 ≠ 萃茶釜</div><div id="scene-loading" class="scene-instructions">三维资源载入中，操作面板可独立使用。</div></div><section id="ledger" class="learning-note"></section><div id="unit-nav" class="campaign-units"></div></div>

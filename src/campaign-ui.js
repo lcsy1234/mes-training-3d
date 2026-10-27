@@ -4,6 +4,7 @@ import {createCampaign,campaignAct,campaignLedger,unitTasks,unitReady,missingFor
 import {createFactoryState,kg} from './factory-state.js';
 import {createFactoryScene} from './factory-scene.js';
 import {ZONES} from './factory-layout.js';
+import {TRAINING_NOTICE} from './instruction-config.js';
 const $=s=>document.querySelector(s),esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 let state,scene,unit='',tab='instruction',taskId='',palletId='',scanIds=new Set();
 const button=(text,action,attrs='')=>`<button class="action-secondary" data-do="${action}" ${attrs}>${esc(text)}</button>`;
@@ -20,13 +21,15 @@ function sceneState(){
 }
 function renderIssueCard(){
   if(!state)return;
+  $('#issue-card-title').textContent='领料指示卡 · 自定义教学方案';
   $('#issue-card-content').innerHTML=`<p>${esc(state.config.campaign)} · ${esc(state.config.instruction||'')}</p><p>按指示书的单桶/单釜用量汇总。仓库库存是可领上限，指示卡显示任务计划；实际领取多少由你输入。查看此卡不会领料。</p>${issuePlan(state).map(g=>`<article class="campaign-task"><h3>${esc(g.name)} · ${esc(g.material)}</h3>${g.details.map(d=>`<p>${esc(d.name)}：${kg(d.grams)}kg × ${d.count}${d.unitKind==='kettle'?'釜':'桶'} = ${kg(d.grams*d.count)}kg · ${d.owner==='qa'?'品保':'生产'}</p>`).join('')}<dl class="pallet-quantities"><div><dt>本产程计划领用</dt><dd>${kg(g.grams)}kg</dd></div><div><dt>已领（含待签收，扣除已退）</dt><dd>${kg(g.issued)}kg</dd></div><div><dt>其中待签收</dt><dd>${kg(g.pending)}kg</dd></div><div class="quota"><dt>按计划还需领</dt><dd>${kg(g.remaining)}kg</dd></div><div><dt>仓库可领取余量</dt><dd>${kg(g.warehouse)}kg</dd></div></dl>${g.materials.length>1?`<p>主料／替代料共用这份计划：${g.materials.map(esc).join('、')}。选择其一或按剩余需求领取，不将两者重复相加。</p>`:''}${g.excess?`<p>已超计划领用${kg(g.excess)}kg，可核对是否需要退回余料。</p>`:''}</article>`).join('')}<p>中控抽取行不生成手工领料需求。</p>`;
+  $('#issue-card-content').insertAdjacentHTML('afterbegin',`<p class="training-disclaimer">${TRAINING_NOTICE}</p>`);
 }
 function render(){
   if(!state)return;
   const c=state.config,tasks=unitTasks(state,unit),l=campaignLedger(state);
   $('#campaign-title').textContent=c.campaign;
-  $('#campaign-meta').textContent=`${c.product||''} · ${c.factory||''} · ${c.instruction||''}`;
+  $('#campaign-meta').textContent=`${c.product||''} · ${c.factory||''} · 生产：${c.instruction||''} · 品保：${c.qaInstruction||'自定义'}`;
   $('#config-info').textContent=c.notes||'自定义教学配置';
   renderIssueCard();
   $('#ledger').textContent=`仓库未领 ${kg(l.warehouse)}kg · 待签收 ${kg(l.transit)}kg · 签收可用 ${kg(l.available)}kg · 备料待投 ${kg(l.prepared)}kg · 已投 ${kg(l.fed)}kg · 差额 ${kg(l.difference)}kg`;
@@ -35,9 +38,12 @@ function render(){
   let html=`<div class="panel-eyebrow">${esc(c.units.find(u=>u.id===unit)?.name||unit)} · 单元独立推进</div>`;
   if(tab==='instruction'){
     html+='<h2>本单元配料明细</h2><p class="form-hint">生产用量按对应桶/釜展开。整包走PDA，非整包及品保走PAD。</p>';
+    html+=`<p class="training-disclaimer">${TRAINING_NOTICE}</p>${(c.instructionSources||[]).map(s=>`<div class="learning-note"><strong>${s.owner==='qa'?'品保配料':'生产配料'}指示书</strong><br>${esc(s.code)} · ${esc(s.name)}</div>`).join('')}`;
     html+=tasks.map(t=>`<article class="campaign-task"><strong>${esc(t.name)}</strong><p>${esc(t.material)} · ${t.owner==='qa'?'品保配料':'生产配料'} · ${esc(t.position||'')}</p><b>${kg(t.grams)}kg</b><p>${t.route==='whole'?'PDA · 不上秤、不脱包、不去皮':`PAD · 容差 ±${t.tolerance}g${t.requiresUnpack?' · 本课需脱包':''}`}<br>目标 ${esc(t.device)}</p></article>`).join('');
+    html+=tasks.filter(t=>t.sourceCode).map(t=>`<p class="form-hint">${esc(t.name)}：来源${esc(t.sourceCode)}，行${esc(t.sourceRowId)} / 明细${esc(t.sourceDetailId)}；${t.route==='weigh'?`接口净重范围${kg(t.minGrams)}～${kg(t.maxGrams)}kg`:'PDA整包不上秤'}</p>`).join('');
     const controls=c.lines.filter(t=>t.route==='control');
     html+=controls.map(t=>`<div class="learning-note">${esc(t.name)} ${kg(t.grams)}kg：中控抽取，不生成备料任务，不计入手工领料、称量及耗用账。</div>`).join('');
+    html+=(c.unsupportedStock||[]).map(p=>`<div class="learning-note">待确认替代料：${esc(p.name)}（${esc(p.material)}），${p.quantity}${esc(p.unit)}。${esc(p.reason)}</div>`).join('');
     html+=button('开始本单元备料','go-prepare');
   }else if(tab==='warehouse'){
     const p=state.pallets.find(p=>p.id===palletId)||state.pallets[0];palletId=p.id;
@@ -53,7 +59,7 @@ function render(){
     else if(t.route==='whole')html+=`<p>直接扫描已签收原料码；不脱包、不称量、不去皮。</p>${button('PDA确认整包备料并生成标签','prepare')}`;
     else{
       const scale=t.scale;
-      html+=`<p>净重允许 ${kg(t.grams-t.tolerance)}～${kg(t.grams+t.tolerance)}kg；变化后稳定1秒。${t.tolerance===0?'本课按准确目标值演练，真实品保容差待核实。':''}</p>`;
+      html+=`<p>净重允许 ${kg(t.minGrams??t.grams-t.tolerance)}～${kg(t.maxGrams??t.grams+t.tolerance)}kg；变化后稳定1秒。${t.sourceCode?'重量与范围来自接口明细，稳定时长为教学设置。':t.tolerance===0?'本课按准确目标值演练，真实品保容差待核实。':''}</p>`;
       if(t.requiresUnpack)html+=button(scale?.unpackCode?`已脱包 ${scale.unpackCode}`:'按规则执行散称脱包','unpack');
       html+=`<label class="field">空容器皮重kg（本课示例0.10）<input id="tare-grams" type="number" step="0.001" value="0.1"></label>${button('放置空容器并去皮','tare')}<div class="scale-display"><span>PAD · 毛重 − 皮重 = 净重（kg）</span><div><strong>${kg((scale?.gross||0)-(scale?.tare||0))}</strong></div><p>${kg(scale?.gross||0)} − ${kg(scale?.tare||0)} · ${scale?.tare!=null?'已去皮':'未去皮'}</p></div><label class="field">模拟毛重kg<input id="gross-grams" type="number" step="0.001" value="${((scale?.tare||100)+t.grams)/1000}"></label>${button('加减料后更新毛重','gross')}${button('稳定后确认PAD称量并生成标签','prepare')}`;
     }
