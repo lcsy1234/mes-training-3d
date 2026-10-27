@@ -73,5 +73,5 @@ export function receivingProgress(s){
   });
 }
 export function receivingReady(s){
-  return receivingProgress(s).every(item=>item.ready);
+  return receivingProgress(s).some(item=>item.ready);
 }

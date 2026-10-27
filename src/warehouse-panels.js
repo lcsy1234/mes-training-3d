@@ -18,7 +18,7 @@ export function warehousePanel(s,v,includeAdvance=true){
   html+=`<div class="learning-note">仓库未领 ${kg(w.warehouseGrams)}kg · 待签收 ${kg(w.inTransitGrams)}kg · 已签收 ${kg(w.signedGrams)}kg<br>仓库数量差额 ${kg(w.differenceGrams)}kg。扫码、发货、签收与备料分别记账。</div>`;
   if(includeAdvance&&s.chapter===0){
     const progress=receivingProgress(s),missing=progress.filter(item=>!item.ready),ready=receivingReady(s);
-    html+=`<h3>进入备料区前的签收条件</h3><div class="receiving-checklist">${progress.map(item=>`<div class="${item.ready?'ready':'missing'}"><span>${item.ready?'✓':'○'} ${MATERIALS[item.material]}</span><strong>${item.ready?'已签收 '+kg(item.signedGrams)+'kg':'尚无已签收来源'}</strong><small>本课任务量 ${kg(item.requiredGrams)}kg</small></div>`).join('')}</div><button data-action="advance" class="action-primary" ${ready?'':'disabled'}>${ready?'进入备料区 →':`还缺 ${missing.length} 种物料`}</button><p class="form-hint">${ready?'三类物料均已有签收来源，可以继续；数量未备够时仍可在备料阶段回来补领。':`自动签收已成功。还需领取并自动签收：${missing.map(item=>`${MATERIALS[item.material]}（本课${kg(item.requiredGrams)}kg）`).join('、')}。`}</p>`;
+    html+=`<h3>备料支路的签收来源</h3><div class="receiving-checklist">${progress.map(item=>`<div class="${item.ready?'ready':'missing'}"><span>${item.ready?'✓':'○'} ${MATERIALS[item.material]}</span><strong>${item.ready?'已签收 '+kg(item.signedGrams)+'kg':'尚无已签收来源'}</strong><small>本课任务量 ${kg(item.requiredGrams)}kg</small></div>`).join('')}</div><button data-action="advance" class="action-primary" ${ready?'':'disabled'}>${ready?'进入备料区 →':'请先签收至少一种物料'}</button><p class="form-hint">${ready?(missing.length?`可以先处理已签收物料；${missing.map(item=>MATERIALS[item.material]).join('、')}支路暂不可操作，之后可返回仓库补领。`:'全部支路已有签收来源，可以进入备料区。'):'任意一种本课物料完成签收后即可进入备料区。进入不代表整章已齐套。'}</p>`;
   }
   return html;
 }

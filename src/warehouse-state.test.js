@@ -42,13 +42,13 @@ test('virtual warehouse withdrawals automatically sign and always keep an issue 
   assert.equal(palletBalances(s,'WMS-P02').warehouseGrams,77000);
   assert.equal(warehouseLedger(s).differenceGrams,0);
 });
-test('preparation entry explains which required material sources are still missing',()=>{
+test('one signed material can enter preparation while missing branches remain visible',()=>{
   let s=issue(createFactoryState(),'TEMP-P02',75000);
   const progress=receivingProgress(s);
   assert.deepEqual(progress.map(x=>[x.material,x.signedGrams,x.ready]),[
     ['BULK',75000,true],['SMALL',0,false],['TEA',0,false],
   ]);
-  assert.equal(receivingReady(s),false);
+  assert.equal(receivingReady(s),true);
   s=issue(s,'TEMP-P03',1500);s=issue(s,'TEMP-P04',3000);
   assert.equal(receivingReady(s),true);
 });
