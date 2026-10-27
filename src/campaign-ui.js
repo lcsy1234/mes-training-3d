@@ -6,16 +6,19 @@ import {createFactoryScene} from './factory-scene.js';
 import {ZONES} from './factory-layout.js';
 import {TRAINING_NOTICE} from './instruction-config.js';
 import {bootCampaign} from './campaign-bootstrap.js';
+import {factoryRecipe} from './factory-recipe.js';
 const $=s=>document.querySelector(s),esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-let state,scene,unit='',tab='instruction',taskId='',palletId='',scanIds=new Set();
+const factoryHome=document.body.dataset.factoryHome==='true';
+let state,scene,unit='',tab=factoryHome?'overview':'instruction',taskId='',palletId='',scanIds=new Set();
 const button=(text,action,attrs='')=>`<button class="action-secondary" data-do="${action}" ${attrs}>${esc(text)}</button>`;
 const select=(id,items,current)=>`<select id="${id}">${items.map(([value,text])=>`<option value="${esc(value)}" ${value===current?'selected':''}>${esc(text)}</option>`).join('')}</select>`;
 function message(text,error=false){$('#message').textContent=text;$('#message').className=error?'error-notice':'learning-note';}
 function run(type,p={}){const r=campaignAct(state,type,p);state=r.state;message(r.message,!r.ok);if(r.ok){if(type==='review')scanIds.clear();render();scene?.update(sceneState(),type);}return r.ok;}
 function sceneState(){
   const s=createFactoryState();s.tags={};s.roots=[];s.pallets={};s.campaign=state.config.campaign;
-  state.pallets.forEach((p,i)=>{const id=`${p.warehouseType==='wms'?'WMS':'TEMP'}-P${String(i+1).padStart(2,'0')}`;
-    s.pallets[id]={id,displayName:p.id,warehouse:p.warehouseType,initialGrams:p.initial,preparedGrams:p.prepared};
+  const palletCounts={wms:0,virtual:0};
+  state.pallets.forEach(p=>{const id=`${p.warehouseType==='wms'?'WMS':'TEMP'}-P${String(++palletCounts[p.warehouseType]).padStart(2,'0')}`;
+    s.pallets[id]={id,sourceId:p.id,displayName:`${p.id} ${p.name||p.material}`,warehouse:p.warehouseType,initialGrams:p.initial,preparedGrams:p.prepared};
     s.roots.push(p.id);s.tags[p.id]={id:p.id,kind:'raw',material:'BULK',grams:p.signed,remainingGrams:p.available,received:p.signed>0,parentIds:[],location:'receipt',printed:true,attached:true};});
   state.tags.forEach(t=>{const task=state.tasks.find(x=>x.id===t.task);s.tags[t.id]={...t,kind:task.route==='whole'?'overall':'weigh',material:t.owner==='qa'?'SMALL':'BULK',bucket:Number(t.unit.slice(1)),remainingGrams:t.fed?0:t.grams,parentIds:[t.pallet],location:t.fed?task.device:state.reviews.includes(t.unit)?`cart-${Number(t.unit.slice(1))}`:task.route==='whole'?'package':'weigh'};});
   s.feeds=state.feeds;s.chapter=tab==='warehouse'?0:tab==='feed'?2:1;return s;
@@ -38,7 +41,10 @@ function render(){
   $('#unit-nav').innerHTML=c.units.map(u=>`<button data-unit="${esc(u.id)}" class="${u.id===unit?'active':''}"><strong>${esc(u.name||u.id)}</strong><small>${state.processes.includes(u.id)?'✓ 工艺完成':state.reviews.includes(u.id)?'✓ 复核完成':unitReady(state,u.id)?'已齐套，待复核':`${unitTasks(state,u.id).filter(t=>t.tagId).length}/${unitTasks(state,u.id).length} 已备料`}</small></button>`).join('');
   document.querySelectorAll('[data-tab]').forEach(b=>b.classList.toggle('active',b.dataset.tab===tab));
   let html=`<div class="panel-eyebrow">${esc(c.units.find(u=>u.id===unit)?.name||unit)} · 单元独立推进</div>`;
-  if(tab==='instruction'){
+  if(tab==='overview'){
+    html+='<h2>工厂全景</h2><p class="form-hint">仓库已按截图材料配置。每种材料在实际仓、虚拟仓各有999kg初始库存；点击仓库查看托盘，再按指示卡自行领料。</p>';
+    html+=`<div class="learning-note">${[...new Map(c.stock.map(p=>[p.material,p])).values()].map(p=>`${esc(p.name)} · ${esc(p.material)}`).join('<br>')}</div>${button('进入仓库与签收','go-warehouse')}${button('查看配料指示卡','issue-card')}${button('进入备料区','go-prepare')}`;
+  }else if(tab==='instruction'){
     html+='<h2>本单元配料明细</h2><p class="form-hint">生产用量按对应桶/釜展开。整包走PDA，非整包及品保走PAD。</p>';
     html+=`<p class="training-disclaimer">${TRAINING_NOTICE}</p>${(c.instructionSources||[]).map(s=>`<div class="learning-note"><strong>${s.owner==='qa'?'品保配料':'生产配料'}指示书</strong><br>${esc(s.code)} · ${esc(s.name)}</div>`).join('')}`;
     html+=tasks.map(t=>`<article class="campaign-task"><strong>${esc(t.name)}</strong><p>${esc(t.material)} · ${t.owner==='qa'?'品保配料':'生产配料'} · ${esc(t.position||'')}</p><b>${kg(t.grams)}kg</b><p>${t.route==='whole'?'PDA · 不上秤、不脱包、不去皮':`PAD · 容差 ±${t.tolerance}g${t.requiresUnpack?' · 本课需脱包':''}`}<br>目标 ${esc(t.device)}</p></article>`).join('');
@@ -49,7 +55,7 @@ function render(){
     html+=button('开始本单元备料','go-prepare');
   }else if(tab==='warehouse'){
     const p=state.pallets.find(p=>p.id===palletId)||state.pallets[0];palletId=p.id;
-    html+=`<h2>托盘领料与签收</h2>${button('打开领料指示卡 · 看计划和还需领量','issue-card')}<label class="field">扫描教学托盘码${select('pallet',state.pallets.map(x=>[x.id,`${x.name||x.material} · ${x.id}`]),p.id)}</label><div class="pallet-card"><strong>${esc(p.name||p.material)}</strong><p>${esc(p.id)} · ${esc(p.material)} · ${esc(p.batch)}<br>${p.warehouseType==='wms'?'实际仓 WMS模拟':'虚拟暂存仓'}<br>当前托盘量 ${kg(p.initial-p.prepared)}kg<br>仓库未领 ${kg(p.warehouse)}kg<br>已签收累计 ${kg(p.signed)}kg · 签收可用 ${kg(p.available)}kg</p></div><label class="field">本次领料量kg（自行输入）<input id="issue-grams" type="number" step="0.001" min="0.001" max="${p.warehouse/1000}" placeholder="先查看领料指示卡，再输入本次领取量"></label>${button(p.warehouseType==='wms'?'WMS模拟发货，生成签收单':'虚拟仓领料并自动签收','issue')}<h3>单据记录</h3>`;
+    html+=`<h2>仓库与签收</h2>${button('打开领料指示卡 · 看计划和还需领量','issue-card')}<label class="field">选择仓库${select('warehouse-type',[['wms','实际仓（WMS）'],['virtual','虚拟仓（暂存仓）']],p.warehouseType)}</label><label class="field">扫描教学托盘码${select('pallet',state.pallets.filter(x=>x.warehouseType===p.warehouseType).map(x=>[x.id,`${x.name||x.material} · ${x.material} · 未领${kg(x.warehouse)}kg · ${x.id}`]),p.id)}</label><div class="pallet-card"><strong>${esc(p.name||p.material)}</strong><p>${esc(p.id)} · ${esc(p.material)} · ${esc(p.batch)}<br>${p.warehouseType==='wms'?'实际仓 WMS模拟':'虚拟暂存仓'}<br>初始教学库存 ${kg(p.initial)}kg<br>当前托盘量 ${kg(p.initial-p.prepared)}kg<br>仓库未领 ${kg(p.warehouse)}kg<br>已签收累计 ${kg(p.signed)}kg · 签收可用 ${kg(p.available)}kg</p></div><label class="field">本次领料量kg（自行输入）<input id="issue-grams" type="number" step="0.001" min="0.001" max="${p.warehouse/1000}" placeholder="先查看领料指示卡，再输入本次领取量"></label>${button(p.warehouseType==='wms'?'WMS模拟发货，生成签收单':'虚拟仓领料并自动签收','issue')}<h3>单据记录</h3>`;
     html+=state.issues.map(i=>`<article class="campaign-task">${esc(i.id)} · ${esc(i.pallet)} · ${kg(i.grams)}kg · ${i.status==='signed'?'✓ 已签收':`待签收 ${button('进入签收区自动签收本单','receive',`data-issue="${esc(i.id)}"`)}`}</article>`).join('');
     html+=button('处理当前已签收物料 → 备料区','go-prepare')+`<h3>余料退回</h3><label class="field">退料量kg<input id="return-grams" type="number" min="0.001" step="0.001" value="${p.available/1000}"></label>${button('退回未备料签收余量','return')}`;
   }else if(tab==='prepare'){
@@ -80,15 +86,22 @@ function render(){
   $('#labels').innerHTML=state.tags.filter(t=>t.unit===unit).map(t=>`<article class="tag-card"><strong>${esc(t.id)} · ${esc(t.unit)}</strong><p>${esc(t.material)} · ${t.owner==='qa'?'品保':'生产'} · ${kg(t.grams)}kg<br>来源：${esc(t.pallet)} → ${esc(t.parent)}<br>批次 ${esc(t.batch)}<br>${t.fed?'已投料':t.attached?'已贴标':t.printed?'待贴标':'待打印'}</p>${button('打印 / 补打原标签','print',`data-tag="${esc(t.id)}"`)}${button('模拟缺纸','print-fail',`data-tag="${esc(t.id)}"`)}${button('核对贴到当前桶/釜','attach',`data-tag="${esc(t.id)}"`)}</article>`).join('')||'<p>尚无标签，业务完成后会生成标签。</p>';
   $('#events').innerHTML=state.events.slice().reverse().slice(0,80).map(e=>`<p class="campaign-event">${esc(e.at)} · ${esc(e.unit||'')} · ${esc(e.message)}</p>`).join('');
 }
-function focus(zone){if(zone==='overview'){scene?.focus(null);return;}scene?.select(zone);$('#view-title').textContent=ZONES[zone]?.name||'教学工厂';}
+function focus(zone){if(zone==='overview'){scene?.focus(null);$('#view-title').textContent='工厂全景';return;}scene?.select(zone);$('#view-title').textContent=ZONES[zone]?.name||'教学工厂';}
+function visitZone(zone){
+  tab=zone==='overview'?'overview':['warehouse','receipt'].includes(zone)?'warehouse':['package','weigh','unpack'].includes(zone)?'prepare':['collect','process'].includes(zone)?'feed':'instruction';
+  if(zone==='receipt')for(const issue of state.issues.filter(i=>i.status==='pending'))run('receive',{issue:issue.id});
+  if(['package','weigh','unpack'].includes(zone)){const t=unitTasks(state,unit).find(t=>zone==='package'?t.route==='whole':t.route==='weigh');if(t)taskId=t.id;}
+  render();focus(zone);
+}
 document.addEventListener('change',e=>{
+  if(e.target.id==='warehouse-type'){palletId=state.pallets.find(p=>p.warehouseType===e.target.value)?.id||'';render();scene?.update(sceneState());}
   if(e.target.id==='task'){taskId=e.target.value;render();}
   if(e.target.id==='pallet'){palletId=e.target.value;render();}
   if(e.target.dataset.scan){e.target.checked?scanIds.add(e.target.dataset.scan):scanIds.delete(e.target.dataset.scan);}
 });
 document.addEventListener('click',e=>{
   const b=e.target.closest('button');if(!b)return;
-  if(b.dataset.zone){focus(b.dataset.zone);return;}
+  if(b.dataset.zone){visitZone(b.dataset.zone);return;}
   if(b.dataset.unit){unit=b.dataset.unit;taskId='';scanIds.clear();render();return;}
   if(b.dataset.tab){tab=b.dataset.tab;scanIds.clear();render();focus(tab==='warehouse'?'warehouse':tab==='feed'?'collect':tab==='prepare'?'package':'control');return;}
   if(!state)return;
@@ -98,7 +111,7 @@ document.addEventListener('click',e=>{
   if(b.id==='reset'){if(confirm('清空本轮模拟记录并重新演练？')){state=createCampaign(state.config);scanIds.clear();render();scene?.update(sceneState());}return;}
   const action=b.dataset.do,p={task:taskId,pallet:palletId,campaign:state.config.campaign};
   const grams=id=>Math.round(Number($(id)?.value)*1000);
-  if(action?.startsWith('go-')){tab=action.slice(3);render();focus(tab==='feed'?'collect':'package');return;}
+  if(action?.startsWith('go-')){tab=action.slice(3);render();focus(tab==='warehouse'?'warehouse':tab==='feed'?'collect':'package');return;}
   if(action==='issue')run('issue',{...p,grams:grams('#issue-grams')});
   if(action==='receive')run('receive',{issue:b.dataset.issue});
   if(action==='return')run('return',{...p,grams:grams('#return-grams')});
@@ -113,8 +126,9 @@ document.addEventListener('click',e=>{
   if(action==='downstream'){focus('downstream');scene?.playFlow();}
 });
 async function load(config){state=createCampaign(config);unit=config.units[0].id;taskId='';scanIds.clear();render();scene?.dispose();$('#factory-scene').replaceChildren();$('#world-labels').replaceChildren();
-  try{scene=await createFactoryScene({campaignName:config.campaign,onSelect:focus,onTag:id=>message('标签 '+id+'：在下方查看来源及打印状态'),onPallet:()=>{tab='warehouse';render();},onProgress:text=>{$('#scene-loading').textContent=text;}});scene.update(sceneState());$('#scene-loading').textContent='拖动旋转 · 滚轮缩放 · 点击区域进入';}
+  try{scene=await createFactoryScene({campaignName:config.campaign,onSelect:visitZone,onTag:id=>message('标签 '+id+'：在下方查看来源及打印状态'),onPallet:id=>{palletId=sceneState().pallets[id]?.sourceId||id;tab='warehouse';render();},onProgress:text=>{$('#scene-loading').textContent=text;}});scene.update(sceneState());$('#scene-loading').textContent='拖动旋转 · 滚轮缩放 · 点击区域进入';}
   catch(error){$('#scene-loading').textContent='三维场景不可用，右侧业务演练仍可继续：'+error.message;}
 }
 $('#config-file').addEventListener('change',async e=>{try{const file=e.target.files[0];if(file)await load({...JSON.parse(await file.text()),sourceLabel:'手动载入的本机场景JSON'});}catch(error){message('场景未载入：'+error.message,true);}});
-await bootCampaign({local:import.meta.env.DEV,load,fetchConfig:async()=>{const response=await fetch('./.local-training/current.json');if(!response.ok)throw new Error('本机配置文件不可用');return response.json();}});
+if(factoryHome)await load(factoryRecipe());
+else await bootCampaign({local:import.meta.env.DEV,load,fetchConfig:async()=>{const response=await fetch('./.local-training/current.json');if(!response.ok)throw new Error('本机配置文件不可用');return response.json();}});

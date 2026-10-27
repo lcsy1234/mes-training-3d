@@ -153,8 +153,8 @@ export async function createFactoryScene({onSelect,onTag,onProgress,onDropTag,on
     for(const p of Object.values(s.pallets)){
       let g=palletActors.get(p.id);
       if(!g){g=new THREE.Group();g.add(model('pallet',1.05,'max'));const sack=model('sack',.45);sack.position.y=.18;g.add(sack);g.userData.zone='warehouse';g.userData.palletId=p.id;scene.add(g);clickable.push(g);palletActors.set(p.id,g);}
-      const index=Number(p.id.split('P').at(-1))-1;
-      g.position.set(p.warehouse==='wms'?-3.8:-1.2,.15,-7.2+index*.85);g.visible=p.initialGrams-p.preparedGrams>0;
+      const peers=Object.values(s.pallets).filter(x=>x.warehouse===p.warehouse),index=peers.findIndex(x=>x.id===p.id);
+      g.position.set(p.warehouse==='wms'?-3.8:-1.2,.15,-7.2+index*(peers.length>4?.55:.85));g.visible=p.initialGrams-p.preparedGrams>0;
       const text=`${p.displayName||p.id} · ${kg(p.initialGrams-p.preparedGrams)}kg`;
       if(text!==g.userData.text){const old=g.userData.label;if(old){g.remove(old);old.material.map.dispose();old.material.dispose();}g.userData.label=sign(g,text,[0,.95,0],1.6,p.warehouse==='wms'?'#38574e':'#146c61');g.userData.text=text;}
     }
