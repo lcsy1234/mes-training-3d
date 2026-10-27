@@ -5,6 +5,7 @@ import {createFactoryState,kg} from './factory-state.js';
 import {createFactoryScene} from './factory-scene.js';
 import {ZONES} from './factory-layout.js';
 import {TRAINING_NOTICE} from './instruction-config.js';
+import {bootCampaign} from './campaign-bootstrap.js';
 const $=s=>document.querySelector(s),esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 let state,scene,unit='',tab='instruction',taskId='',palletId='',scanIds=new Set();
 const button=(text,action,attrs='')=>`<button class="action-secondary" data-do="${action}" ${attrs}>${esc(text)}</button>`;
@@ -31,6 +32,7 @@ function render(){
   $('#campaign-title').textContent=c.campaign;
   $('#campaign-meta').textContent=`${c.product||''} · ${c.factory||''} · 生产：${c.instruction||''} · 品保：${c.qaInstruction||'自定义'}`;
   $('#config-info').textContent=c.notes||'自定义教学配置';
+  $('#config-source').textContent=`已加载：${c.sourceLabel||'本机自定义配置'} · ${state.tasks.length}项备料任务 · ${state.pallets.length}种库存物料。${c.loadNote||''}`;
   renderIssueCard();
   $('#ledger').textContent=`仓库未领 ${kg(l.warehouse)}kg · 待签收 ${kg(l.transit)}kg · 签收可用 ${kg(l.available)}kg · 备料待投 ${kg(l.prepared)}kg · 已投 ${kg(l.fed)}kg · 差额 ${kg(l.difference)}kg`;
   $('#unit-nav').innerHTML=c.units.map(u=>`<button data-unit="${esc(u.id)}" class="${u.id===unit?'active':''}"><strong>${esc(u.name||u.id)}</strong><small>${state.processes.includes(u.id)?'✓ 工艺完成':state.reviews.includes(u.id)?'✓ 复核完成':unitReady(state,u.id)?'已齐套，待复核':`${unitTasks(state,u.id).filter(t=>t.tagId).length}/${unitTasks(state,u.id).length} 已备料`}</small></button>`).join('');
@@ -114,6 +116,5 @@ async function load(config){state=createCampaign(config);unit=config.units[0].id
   try{scene=await createFactoryScene({campaignName:config.campaign,onSelect:focus,onTag:id=>message('标签 '+id+'：在下方查看来源及打印状态'),onPallet:()=>{tab='warehouse';render();},onProgress:text=>{$('#scene-loading').textContent=text;}});scene.update(sceneState());$('#scene-loading').textContent='拖动旋转 · 滚轮缩放 · 点击区域进入';}
   catch(error){$('#scene-loading').textContent='三维场景不可用，右侧业务演练仍可继续：'+error.message;}
 }
-$('#config-file').addEventListener('change',async e=>{try{const file=e.target.files[0];if(file)await load(JSON.parse(await file.text()));}catch(error){message('场景未载入：'+error.message,true);}});
-if(import.meta.env.DEV){try{const response=await fetch('./.local-training/current.json');if(!response.ok)throw new Error('尚无本机场景配置');await load(await response.json());}catch(error){$('#campaign-meta').textContent='请选择本机JSON场景文件。';message(error.message,true);}}
-else $('#campaign-meta').textContent='请选择本机JSON场景文件；公开版不内置公司配方。';
+$('#config-file').addEventListener('change',async e=>{try{const file=e.target.files[0];if(file)await load({...JSON.parse(await file.text()),sourceLabel:'手动载入的本机场景JSON'});}catch(error){message('场景未载入：'+error.message,true);}});
+await bootCampaign({local:import.meta.env.DEV,load,fetchConfig:async()=>{const response=await fetch('./.local-training/current.json');if(!response.ok)throw new Error('本机配置文件不可用');return response.json();}});
