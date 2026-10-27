@@ -81,6 +81,7 @@ export function campaignAct(state,type,p={},now=Date.now()){
       check(tag&&!tag.fed,'标签不存在或已经投料。');check(tag.campaign===p.campaign&&tag.unit===p.unit,'标签产程或桶/釜号不符。');
       check(s.reviews.includes(tag.unit)&&unitReady(s,tag.unit),'投料前须完成当前桶/釜生产与品保齐套及领料复核。');
       const t=s.tasks.find(x=>x.id===tag.task);check(p.device===t.device,'设备与此任务工艺不一致。');
+      for(const device of t.requiresDevices||[])check(unitTasks(s,tag.unit).filter(x=>x.device===device).every(x=>s.tags.find(y=>y.id===x.tagId)?.fed),'前序工艺物料尚未全部投入，不能直接进入调配。');
       tag.fed=true;s.feeds.push({tag:tag.id,unit:tag.unit,device:p.device,grams:tag.grams});message='扫码投料成功，标签实际净重记入耗用。';
     }else if(type==='link'){
       check(s.config.units.some(u=>u.id===p.unit&&u.kind==='bucket')&&s.config.units.some(u=>u.id===p.kettle&&u.kind==='kettle'),'请选择有效生产桶及萃茶釜。');

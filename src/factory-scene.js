@@ -7,7 +7,7 @@ import { FACTORY_ASSETS } from './factory-assets.js';
 import { CHAPTERS, kg, scaleStatus } from './factory-state.js';
 import { box, cylinder, pipe, sign, table, cart, kiosk, downstream, mat } from './factory-props.js';
 
-export async function createFactoryScene({onSelect,onTag,onProgress,onDropTag,onPallet}) {
+export async function createFactoryScene({onSelect,onTag,onProgress,onDropTag,onPallet,campaignName='DEMO-P01'}) {
   const host=document.querySelector('#factory-scene');
   const scene=new THREE.Scene();scene.background=new THREE.Color('#e8ede4');
   const renderer=new THREE.WebGLRenderer({antialias:true});renderer.setPixelRatio(Math.min(devicePixelRatio,1.8));
@@ -45,7 +45,7 @@ export async function createFactoryScene({onSelect,onTag,onProgress,onDropTag,on
   }
   for(let x=-12;x<12;x+=.65)for(const z of [-3.12,3.8])box(staticRoot,[.34,.012,.055],[x,.043,z],'#c9b96e');
   sign(staticRoot,'MES · 前处理实训车间',[0,2.25,-9.1],5.6,'#315b4a','#e7eee0');
-  kiosk(staticRoot,-10.8,-6,'产程 DEMO-P01');
+  kiosk(staticRoot,-10.8,-6,'产程 '+campaignName);
   kiosk(staticRoot,-7,-7,'物料签收 · 自动处理');
   sign(staticRoot,'实际仓 WMS',[-3.8,1.9,-7.7],2);
   sign(staticRoot,'虚拟仓 · 厂内暂存',[-1.2,1.9,-7.7],2);
@@ -155,7 +155,7 @@ export async function createFactoryScene({onSelect,onTag,onProgress,onDropTag,on
       if(!g){g=new THREE.Group();g.add(model('pallet',1.05,'max'));const sack=model('sack',.45);sack.position.y=.18;g.add(sack);g.userData.zone='warehouse';g.userData.palletId=p.id;scene.add(g);clickable.push(g);palletActors.set(p.id,g);}
       const index=Number(p.id.split('P').at(-1))-1;
       g.position.set(p.warehouse==='wms'?-3.8:-1.2,.15,-7.2+index*.85);g.visible=p.initialGrams-p.preparedGrams>0;
-      const text=`${p.id} · ${kg(p.initialGrams-p.preparedGrams)}kg`;
+      const text=`${p.displayName||p.id} · ${kg(p.initialGrams-p.preparedGrams)}kg`;
       if(text!==g.userData.text){const old=g.userData.label;if(old){g.remove(old);old.material.map.dispose();old.material.dispose();}g.userData.label=sign(g,text,[0,.95,0],1.6,p.warehouse==='wms'?'#38574e':'#146c61');g.userData.text=text;}
     }
     for(const [id,g]of palletActors)if(!s.pallets[id])g.visible=false;

@@ -1,4 +1,10 @@
-# MES 工厂实训室 v0.4.2
+# MES 工厂实训室 v0.5.0
+
+新增 [配料指示书产程实训](./campaign.html)：按生产桶、萃茶釜独立展开任务，支持PDA整包、生产PAD散称、品保PAD全量称量、托盘领签、打印恢复、逐单元齐套扫码复核及设备投料。
+
+内部配置放在本机 `.local-training/current.json`，已被Git忽略。开发模式自动读取；公开构建不包含内部配置，可由操作者选择本地JSON载入。原有三章通用课程仍是独立基础案例；新产程练习从“指示书实训”进入，不沿用旧课程的全章备齐门槛。
+
+场景字段：`campaign`、`units`（`bucket`/`kettle`）、`lines`（生产/品保、整包/散称/中控、整数克目标与容差、设备）、`stock`（独立模拟托盘、物料、批次与重量）。实际配方、来源记录和已完成模拟报告只在本机保存，导出前由操作者自行管理。
 
 [在线体验](https://lcsy1234.github.io/mes-training-3d/) · [基础演示](https://lcsy1234.github.io/mes-training-3d/basic.html)
 
