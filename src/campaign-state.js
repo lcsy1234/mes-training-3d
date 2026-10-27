@@ -20,6 +20,18 @@ export function createCampaign(config){
   return {config:c,tasks,pallets:c.stock.map(p=>({...p,initial:p.grams,warehouse:p.grams,transit:0,signed:0,available:0,prepared:0,returned:0})),issues:[],tags:[],reviews:[],feeds:[],processes:[],links:{},events:[],sequence:0};
 }
 export function unitTasks(s,unit){return s.tasks.filter(t=>t.unit===unit);}
+export function issuePlan(s){
+  const groups=new Map();
+  for(const task of s.tasks){
+    if(!groups.has(task.material))groups.set(task.material,{material:task.material,materials:new Set([task.material]),grams:0,details:new Map()});
+    const g=groups.get(task.material);g.grams+=task.grams;(task.alternatives||[]).forEach(m=>g.materials.add(m));
+    const detail=g.details.get(task.lineId)||{name:task.name,unitKind:task.unitKind,grams:task.grams,count:0,owner:task.owner};detail.count++;g.details.set(task.lineId,detail);
+  }
+  return [...groups.values()].map(g=>{
+    const stocks=s.pallets.filter(p=>g.materials.has(p.material)),warehouse=stocks.reduce((n,p)=>n+p.warehouse,0),pending=stocks.reduce((n,p)=>n+p.transit,0),signed=stocks.reduce((n,p)=>n+p.signed-p.returned,0),issued=pending+signed;
+    return {material:g.material,materials:[...g.materials],name:stocks.find(p=>p.material===g.material)?.name||g.material,grams:g.grams,details:[...g.details.values()],warehouse,pending,signed,issued,remaining:Math.max(0,g.grams-issued),excess:Math.max(0,issued-g.grams)};
+  });
+}
 export function unitReady(s,unit){const tasks=unitTasks(s,unit);return tasks.length>0&&tasks.every(t=>{const tag=s.tags.find(x=>x.id===t.tagId);return tag?.printed&&tag.attached;});}
 export function missingForUnit(s,unit){return unitTasks(s,unit).filter(t=>{const tag=s.tags.find(x=>x.id===t.tagId);return !tag?.printed||!tag.attached;}).map(t=>`${t.owner==='qa'?'品保':'生产'} · ${t.name} ${t.grams/1000}kg`);}
 export function campaignLedger(s){

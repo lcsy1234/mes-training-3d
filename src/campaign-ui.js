@@ -1,6 +1,6 @@
 import './factory.css';
 import './campaign.css';
-import {createCampaign,campaignAct,campaignLedger,unitTasks,unitReady,missingForUnit} from './campaign-state.js';
+import {createCampaign,campaignAct,campaignLedger,unitTasks,unitReady,missingForUnit,issuePlan} from './campaign-state.js';
 import {createFactoryState,kg} from './factory-state.js';
 import {createFactoryScene} from './factory-scene.js';
 import {ZONES} from './factory-layout.js';
@@ -18,13 +18,17 @@ function sceneState(){
   state.tags.forEach(t=>{const task=state.tasks.find(x=>x.id===t.task);s.tags[t.id]={...t,kind:task.route==='whole'?'overall':'weigh',material:t.owner==='qa'?'SMALL':'BULK',bucket:Number(t.unit.slice(1)),remainingGrams:t.fed?0:t.grams,parentIds:[t.pallet],location:t.fed?task.device:state.reviews.includes(t.unit)?`cart-${Number(t.unit.slice(1))}`:task.route==='whole'?'package':'weigh'};});
   s.feeds=state.feeds;s.chapter=tab==='warehouse'?0:tab==='feed'?2:1;return s;
 }
-function totals(material){return state.tasks.filter(t=>t.material===material).reduce((n,t)=>n+t.grams,0);}
+function renderIssueCard(){
+  if(!state)return;
+  $('#issue-card-content').innerHTML=`<p>${esc(state.config.campaign)} · ${esc(state.config.instruction||'')}</p><p>按指示书的单桶/单釜用量汇总。仓库库存是可领上限，指示卡显示任务计划；实际领取多少由你输入。查看此卡不会领料。</p>${issuePlan(state).map(g=>`<article class="campaign-task"><h3>${esc(g.name)} · ${esc(g.material)}</h3>${g.details.map(d=>`<p>${esc(d.name)}：${kg(d.grams)}kg × ${d.count}${d.unitKind==='kettle'?'釜':'桶'} = ${kg(d.grams*d.count)}kg · ${d.owner==='qa'?'品保':'生产'}</p>`).join('')}<dl class="pallet-quantities"><div><dt>本产程计划领用</dt><dd>${kg(g.grams)}kg</dd></div><div><dt>已领（含待签收，扣除已退）</dt><dd>${kg(g.issued)}kg</dd></div><div><dt>其中待签收</dt><dd>${kg(g.pending)}kg</dd></div><div class="quota"><dt>按计划还需领</dt><dd>${kg(g.remaining)}kg</dd></div><div><dt>仓库可领取余量</dt><dd>${kg(g.warehouse)}kg</dd></div></dl>${g.materials.length>1?`<p>主料／替代料共用这份计划：${g.materials.map(esc).join('、')}。选择其一或按剩余需求领取，不将两者重复相加。</p>`:''}${g.excess?`<p>已超计划领用${kg(g.excess)}kg，可核对是否需要退回余料。</p>`:''}</article>`).join('')}<p>中控抽取行不生成手工领料需求。</p>`;
+}
 function render(){
   if(!state)return;
   const c=state.config,tasks=unitTasks(state,unit),l=campaignLedger(state);
   $('#campaign-title').textContent=c.campaign;
   $('#campaign-meta').textContent=`${c.product||''} · ${c.factory||''} · ${c.instruction||''}`;
   $('#config-info').textContent=c.notes||'自定义教学配置';
+  renderIssueCard();
   $('#ledger').textContent=`仓库未领 ${kg(l.warehouse)}kg · 待签收 ${kg(l.transit)}kg · 签收可用 ${kg(l.available)}kg · 备料待投 ${kg(l.prepared)}kg · 已投 ${kg(l.fed)}kg · 差额 ${kg(l.difference)}kg`;
   $('#unit-nav').innerHTML=c.units.map(u=>`<button data-unit="${esc(u.id)}" class="${u.id===unit?'active':''}"><strong>${esc(u.name||u.id)}</strong><small>${state.processes.includes(u.id)?'✓ 工艺完成':state.reviews.includes(u.id)?'✓ 复核完成':unitReady(state,u.id)?'已齐套，待复核':`${unitTasks(state,u.id).filter(t=>t.tagId).length}/${unitTasks(state,u.id).length} 已备料`}</small></button>`).join('');
   document.querySelectorAll('[data-tab]').forEach(b=>b.classList.toggle('active',b.dataset.tab===tab));
@@ -37,7 +41,7 @@ function render(){
     html+=button('开始本单元备料','go-prepare');
   }else if(tab==='warehouse'){
     const p=state.pallets.find(p=>p.id===palletId)||state.pallets[0];palletId=p.id;
-    html+=`<h2>托盘领料与签收</h2><label class="field">扫描教学托盘码${select('pallet',state.pallets.map(x=>[x.id,`${x.id} · ${x.material}`]),p.id)}</label><div class="pallet-card"><strong>${esc(p.id)}</strong><p>${esc(p.material)} · ${esc(p.batch)}<br>${p.warehouseType==='wms'?'实际仓 WMS模拟':'虚拟暂存仓'}<br>当前托盘量 ${kg(p.initial-p.prepared)}kg<br>仓库未领 ${kg(p.warehouse)}kg<br>已签收累计 ${kg(p.signed)}kg · 签收可用 ${kg(p.available)}kg<br>配料任务目标合计 ${kg(totals(p.material))}kg</p></div><label class="field">本次领料量kg<input id="issue-grams" type="number" step="0.001" min="0.001" value="${Math.min(p.warehouse,Math.max(0,totals(p.material)-p.prepared-p.available-p.transit))/1000}"></label>${button(p.warehouseType==='wms'?'WMS模拟发货，生成签收单':'虚拟仓领料并自动签收','issue')}<h3>单据记录</h3>`;
+    html+=`<h2>托盘领料与签收</h2>${button('打开领料指示卡 · 看计划和还需领量','issue-card')}<label class="field">扫描教学托盘码${select('pallet',state.pallets.map(x=>[x.id,`${x.name||x.material} · ${x.id}`]),p.id)}</label><div class="pallet-card"><strong>${esc(p.name||p.material)}</strong><p>${esc(p.id)} · ${esc(p.material)} · ${esc(p.batch)}<br>${p.warehouseType==='wms'?'实际仓 WMS模拟':'虚拟暂存仓'}<br>当前托盘量 ${kg(p.initial-p.prepared)}kg<br>仓库未领 ${kg(p.warehouse)}kg<br>已签收累计 ${kg(p.signed)}kg · 签收可用 ${kg(p.available)}kg</p></div><label class="field">本次领料量kg（自行输入）<input id="issue-grams" type="number" step="0.001" min="0.001" max="${p.warehouse/1000}" placeholder="先查看领料指示卡，再输入本次领取量"></label>${button(p.warehouseType==='wms'?'WMS模拟发货，生成签收单':'虚拟仓领料并自动签收','issue')}<h3>单据记录</h3>`;
     html+=state.issues.map(i=>`<article class="campaign-task">${esc(i.id)} · ${esc(i.pallet)} · ${kg(i.grams)}kg · ${i.status==='signed'?'✓ 已签收':`待签收 ${button('进入签收区自动签收本单','receive',`data-issue="${esc(i.id)}"`)}`}</article>`).join('');
     html+=button('处理当前已签收物料 → 备料区','go-prepare')+`<h3>余料退回</h3><label class="field">退料量kg<input id="return-grams" type="number" min="0.001" step="0.001" value="${p.available/1000}"></label>${button('退回未备料签收余量','return')}`;
   }else if(tab==='prepare'){
@@ -80,6 +84,8 @@ document.addEventListener('click',e=>{
   if(b.dataset.unit){unit=b.dataset.unit;taskId='';scanIds.clear();render();return;}
   if(b.dataset.tab){tab=b.dataset.tab;scanIds.clear();render();focus(tab==='warehouse'?'warehouse':tab==='feed'?'collect':tab==='prepare'?'package':'control');return;}
   if(!state)return;
+  if(b.id==='open-issue-card'||b.dataset.do==='issue-card'){renderIssueCard();$('#issue-card').showModal();return;}
+  if(b.id==='close-issue-card'){$('#issue-card').close();return;}
   if(b.id==='export'){const blob=new Blob([JSON.stringify(state,null,2)],{type:'application/json'}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download=`${state.config.campaign}-training.json`;a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);return;}
   if(b.id==='reset'){if(confirm('清空本轮模拟记录并重新演练？')){state=createCampaign(state.config);scanIds.clear();render();scene?.update(sceneState());}return;}
   const action=b.dataset.do,p={task:taskId,pallet:palletId,campaign:state.config.campaign};

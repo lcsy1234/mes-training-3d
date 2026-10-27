@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {createCampaign,campaignAct,campaignLedger,unitReady} from './campaign-state.js';
+import {createCampaign,campaignAct,campaignLedger,unitReady,issuePlan} from './campaign-state.js';
 // Synthetic fixture; actual internal configuration is local and excluded from Git.
 const config={campaign:'TEST',units:[{id:'B1',kind:'bucket'},{id:'B2',kind:'bucket'},{id:'K1',kind:'kettle'}],lines:[
   {id:'whole',name:'主料',material:'A',owner:'production',unitKind:'bucket',route:'whole',grams:1000,tolerance:0,device:'D'},
@@ -12,6 +12,14 @@ const ok=(s,type,p={},now=2000)=>{const r=campaignAct(s,type,p,now);assert.equal
 function received(){let s=createCampaign(config);s=ok(s,'issue',{pallet:'P1',grams:5000,campaign:'TEST'});s=ok(s,'issue',{pallet:'P2',grams:1000,campaign:'TEST'});return ok(s,'receive',{issue:s.issues.at(-1).id});}
 function prepare(s,id){const t=s.tasks.find(t=>t.id===id),pallet=t.material==='Q'?'P2':'P1';if(t.route==='weigh'){if(t.requiresUnpack)s=ok(s,'unpack',{task:id,pallet});s=ok(s,'tare',{task:id,pallet,grams:10},0);s=ok(s,'gross',{task:id,pallet,grams:t.grams+10},10);}s=ok(s,'prepare',{task:id,pallet},2000);const tag=s.tasks.find(t=>t.id===id).tagId;s=ok(s,'print',{tag});return ok(s,'attach',{tag,unit:t.unit});}
 test('unit tasks exclude control extraction; QA and production remain distinct',()=>{const s=createCampaign(config);assert.equal(s.tasks.length,5);assert.equal(s.tasks.filter(t=>t.owner==='qa').length,2);});
+test('issue card totals unit tasks, excludes control, merges substitutes and subtracts returns',()=>{
+  const c=structuredClone(config);c.lines.filter(l=>l.material==='A').forEach(l=>l.alternatives=['ALT']);c.stock.push({id:'P3',material:'ALT',batch:'Y',grams:9999000,warehouseType:'virtual'});
+  let s=createCampaign(c),plan=issuePlan(s).find(g=>g.material==='A');assert.equal(plan.grams,2200);assert.equal(plan.details.length,2);
+  s=ok(s,'issue',{pallet:'P3',grams:1000,campaign:'TEST'});plan=issuePlan(s).find(g=>g.material==='A');assert.equal(plan.remaining,1200);assert.equal(plan.issued,1000);
+  s=ok(s,'issue',{pallet:'P1',grams:1200,campaign:'TEST'});assert.equal(issuePlan(s).find(g=>g.material==='A').remaining,0);
+  s=ok(s,'return',{pallet:'P3',grams:100});assert.equal(issuePlan(s).find(g=>g.material==='A').remaining,100);
+  s=ok(s,'issue',{pallet:'P2',grams:100,campaign:'TEST'});const qa=issuePlan(s).find(g=>g.material==='Q');assert.equal(qa.pending,100);assert.equal(qa.remaining,100);
+});
 test('partial receipt can prepare its branch; WMS pending cannot be used',()=>{let s=createCampaign(config);s=ok(s,'issue',{pallet:'P1',grams:1000,campaign:'TEST'});s=prepare(s,'B1:whole');assert.equal(unitReady(s,'B1'),false);assert.equal(campaignAct(s,'tare',{task:'B1:qa',pallet:'P2',grams:10}).ok,false);});
 test('whole rejects tare, wrong material and over-quota; failed actions are atomic',()=>{let s=received();const before=structuredClone(s);assert.equal(campaignAct(s,'tare',{task:'B1:whole',pallet:'P1',grams:10}).ok,false);assert.equal(campaignAct(s,'prepare',{task:'B1:whole',pallet:'P2'}).ok,false);assert.deepEqual(s,before);s=ok(s,'return',{pallet:'P1',grams:4500});assert.equal(campaignAct(s,'prepare',{task:'B1:whole',pallet:'P1'}).ok,false);});
 test('loose scale enforces unpack, tare, net tolerance, stability and immutable source',()=>{let s=received();const p={task:'B1:qa',pallet:'P2'};assert.equal(campaignAct(s,'tare',{...p,grams:10}).ok,false);s=ok(s,'unpack',p);s=ok(s,'tare',{...p,grams:10},0);s=ok(s,'gross',{...p,grams:110},10);assert.equal(campaignAct(s,'prepare',p,500).ok,false);s=ok(s,'gross',{...p,grams:113},20);assert.equal(campaignAct(s,'prepare',p,2000).ok,false);s=ok(s,'gross',{...p,grams:112},30);s=ok(s,'prepare',p,2000);assert.equal(s.tags.at(-1).grams,102);});
